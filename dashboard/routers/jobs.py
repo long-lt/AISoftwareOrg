@@ -9,9 +9,11 @@ import shutil
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
+
+from dashboard.routers.auth import require_auth
 
 from dashboard.database import (
     GENERATED_APPS_DIR,
@@ -33,6 +35,14 @@ from dashboard.queue_manager import (
 router = APIRouter()
 CODE_ALLOWED_ROOTS = {"source", "docs", "backend"}
 CODE_MAX_FILE_BYTES = 512_000
+CODE_DENIED_EXTENSIONS = {
+    ".key", ".pem", ".sqlite", ".sqlite3", ".db",
+}
+CODE_DENIED_NAMES = {
+    ".env", ".env.local", ".env.production", ".env.staging",
+    "secrets.json", "secrets.yaml", "secrets.yml",
+    "credentials.json", "credentials.yaml", "credentials.yml",
+}
 
 
 class GenerateRequest(BaseModel):
@@ -66,7 +76,7 @@ def get_job_phases(slug: str) -> dict[str, str]:
 
 
 @router.delete("/{slug}")
-def delete_single_job(slug: str, purge: bool = Query(False)) -> dict[str, Any]:
+def delete_single_job(slug: str, purge: bool = Query(False), _auth: dict = Depends(require_auth)) -> dict[str, Any]:
     if not delete_job_record(slug):
         raise HTTPException(status_code=404, detail=f"Job '{slug}' không tồn tại")
     purged_path = None
@@ -79,7 +89,7 @@ def delete_single_job(slug: str, purge: bool = Query(False)) -> dict[str, Any]:
 
 
 @router.post("/{slug}/cancel")
-def cancel_single_job(slug: str) -> dict[str, Any]:
+def cancel_single_job(slug: str, _auth: dict = Depends(require_auth)) -> dict[str, Any]:
     if not request_job_cancellation(slug):
         existing = get_job(slug)
         if existing is None:
@@ -106,7 +116,7 @@ def get_job_logs(
 
 
 @router.post("", status_code=202)
-def create_generation_job(payload: GenerateRequest) -> dict[str, Any]:
+def create_generation_job(payload: GenerateRequest, _auth: dict = Depends(require_auth)) -> dict[str, Any]:
     slug = payload.slug or slugify(payload.name)
     features = [f.strip() for f in payload.features.split(",") if f.strip()]
     if not features:
@@ -211,11 +221,19 @@ def _resolve_allowed_code_file(app_dir: Path, requested_path: str) -> Path:
         raise HTTPException(status_code=403, detail="Access denied")
     if any(part.startswith(".") for part in parts):
         raise HTTPException(status_code=403, detail="Access denied")
+
+    # Deny sensitive file extensions and names
+    name_lower = target_file.name.lower()
+    if target_file.suffix.lower() in CODE_DENIED_EXTENSIONS:
+        raise HTTPException(status_code=403, detail="Access denied: sensitive file type")
+    if name_lower in CODE_DENIED_NAMES or any(name_lower.startswith(prefix) for prefix in ("env.", "secrets.", "credentials.")):
+        raise HTTPException(status_code=403, detail="Access denied: sensitive file")
+
     return target_file
 
 
 @router.get("/{slug}/code/file")
-def get_job_code_file(slug: str, path: str) -> dict[str, Any]:
+def get_job_code_file(slug: str, path: str, _auth: dict = Depends(require_auth)) -> dict[str, Any]:
     app_dir = GENERATED_APPS_DIR / slug
     if not app_dir.exists():
         raise HTTPException(status_code=404, detail="Workspace not found")

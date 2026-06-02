@@ -6,8 +6,10 @@ Router for business portfolio initiatives and projects management.
 from __future__ import annotations
 
 from typing import Any
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
+
+from dashboard.routers.auth import require_auth
 
 from dashboard.database import (
     list_initiatives,
@@ -34,12 +36,12 @@ class ProjectRequest(BaseModel):
 
 
 @router.get("")
-def get_projects() -> list[dict[str, Any]]:
+def get_projects(_auth: dict = Depends(require_auth)) -> list[dict[str, Any]]:
     return list_initiatives()
 
 
 @router.post("", status_code=201)
-def post_project(payload: ProjectRequest) -> dict[str, Any]:
+def post_project(payload: ProjectRequest, _auth: dict = Depends(require_auth)) -> dict[str, Any]:
     data = payload.dict()
     return create_initiative(data)
 

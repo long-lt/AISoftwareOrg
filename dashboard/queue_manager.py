@@ -29,7 +29,7 @@ settings = AppSettings()
 
 QUEUE_BACKEND = os.getenv("JOB_QUEUE_BACKEND", "thread").strip().lower()
 REDIS_URL = settings.redis_url
-RQ_QUEUE_NAME = "flutter_ai_factory"
+RQ_QUEUE_NAME = os.getenv("RQ_QUEUE_NAME", "ai_software_factory")
 
 
 def _run_flutter_job(payload: dict[str, Any], slug: str) -> None:

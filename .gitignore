@@ -61,8 +61,9 @@ frontend/build/
 # 3. Mobile Workspace Sandbox (Generated Apps)
 # ------------------------------------------
 # Tránh đẩy mã nguồn sinh ra bởi agents lên git repository của framework chính
-workspace/
+workspace/*
 !workspace/.gitkeep
+generated_apps/
 
 # 4. Storage & Databases
 # ------------------------------------------

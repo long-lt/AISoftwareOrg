@@ -27,7 +27,7 @@ help: ## Show this help message
 .PHONY: setup
 setup: ## Create venv, install Python & Node dependencies
 	python3 -m venv venv
-	. venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt
+	. venv/bin/activate && pip install --upgrade pip && pip install -e ".[dev]"
 	cd frontend && npm install
 	@echo ""
 	@echo "✅ Setup complete. Run 'make dev' to start the server."

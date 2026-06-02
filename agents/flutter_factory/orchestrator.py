@@ -138,6 +138,8 @@ def _run_repair_loop(
     source_dir: Path,
     max_attempts: int,
 ) -> list[Path]:
+    """Run QA + refactor loop until QA passes or attempts exhausted.
+    Returns paths from QA checks and refactor runs (excluding runtime/security)."""
     written_paths: list[Path] = []
     events: list[dict[str, str]] = []
 
@@ -180,37 +182,6 @@ def _run_repair_loop(
             }
         )
 
-    # Flutter web build — chỉ chạy 1 lần sau khi repair loop kết thúc
-    written_paths.extend(run_qa_checks(app_input, docs_dir, source_dir, include_release_build=True))
-    events.append(
-        {
-            "attempt": "final",
-            "phase": "release_build",
-            "result": _read_status(docs_dir / "production_qa_report.md"),
-            "detail": "Flutter web release build after repair loop.",
-        }
-    )
-
-    written_paths.extend(run_runtime_verification(app_input, docs_dir, source_dir))
-    events.append(
-        {
-            "attempt": "final",
-            "phase": "runtime",
-            "result": _read_status(docs_dir / "runtime_report.md"),
-            "detail": "Runtime smoke after repair loop.",
-        }
-    )
-    written_paths.extend(
-        write_security_documents(app_input, docs_dir, source_dir, source_dir.parent / "backend")
-    )
-    events.append(
-        {
-            "attempt": "final",
-            "phase": "security",
-            "result": _read_status(docs_dir / "security_report.md"),
-            "detail": "Security/Release gate after runtime.",
-        }
-    )
     written_paths.append(_write_repair_history(app_input, docs_dir, events, max_attempts))
     return written_paths
 
@@ -398,6 +369,17 @@ def run_full_pipeline(app_input: dict[str, Any], app_dir: Path) -> PipelineResul
             lambda: write_flutter_source(app_input, docs_dir, source_dir),
         )
     )
+    # 07: Static QA (first pass, before repair loop)
+    written_paths.extend(
+        _run_recorded_phase(
+            app_input,
+            app_dir,
+            "07_static_qa",
+            lambda: run_qa_checks(app_input, docs_dir, source_dir, include_release_build=False),
+        )
+    )
+
+    # 08: Repair loop (QA + refactor cycle)
     written_paths.extend(
         _run_recorded_phase(
             app_input,
@@ -411,6 +393,37 @@ def run_full_pipeline(app_input: dict[str, Any], app_dir: Path) -> PipelineResul
             ),
         )
     )
+
+    # 07b: Release build (after repair loop)
+    written_paths.extend(
+        _run_recorded_phase(
+            app_input,
+            app_dir,
+            "07_static_qa",
+            lambda: run_qa_checks(app_input, docs_dir, source_dir, include_release_build=True),
+        )
+    )
+
+    # 09: Runtime verification
+    written_paths.extend(
+        _run_recorded_phase(
+            app_input,
+            app_dir,
+            "09_runtime_test",
+            lambda: run_runtime_verification(app_input, docs_dir, source_dir),
+        )
+    )
+
+    # 10: Security audit
+    written_paths.extend(
+        _run_recorded_phase(
+            app_input,
+            app_dir,
+            "10_security_audit",
+            lambda: write_security_documents(app_input, docs_dir, source_dir, source_dir.parent / "backend"),
+        )
+    )
+
     written_paths.extend(
         _run_recorded_phase(
             app_input,

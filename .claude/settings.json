@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"from dashboard.app import app; print\\('✅ OK'\\)\")",
+      "Bash(git check-ignore *)"
+    ]
+  }
+}

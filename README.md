@@ -7,7 +7,7 @@
 The project combines two complementary AI-agent systems:
 
 1. **AISoftwareOrg** — a multi-agent software organization framework that simulates real software team roles such as Product Manager, Planner, Developer, QA, Reviewer, DevOps, and Git Agent.
-2. **Flutter AI Factory** — a 12-phase application generation pipeline that creates Flutter mobile apps and optional backend APIs from natural language requirements.
+2. **AI Factory Pipeline** — a modular 12-phase application generation pipeline that currently creates Flutter mobile apps and optional backend APIs from natural language requirements, with an architecture designed to support additional target platforms (React, Next.js, FastAPI, etc.) in the future.
 
 The platform also includes a web-based dashboard for monitoring jobs, agents, generated projects, token usage, provider configuration, human-in-the-loop approvals, and build status.
 
@@ -38,9 +38,9 @@ Not yet recommended for:
 
 ## Core Features
 
-### 12-Phase Flutter App Generation Pipeline
+### 12-Phase App Generation Pipeline
 
-The system can generate a Flutter application through a structured software delivery workflow:
+The system can generate applications through a structured software delivery workflow (currently Flutter, designed for modularity):
 
 1. Product brief creation
 2. Business analysis
@@ -115,7 +115,7 @@ The dashboard is intended to provide visibility into:
 unified-ai-software-org/
 ├── agents/                  # AI agent definitions and role-specific logic
 │   ├── software_org/        # Software organization agents
-│   └── flutter_factory/     # Flutter generation pipeline agents
+│   └── flutter_factory/     # App generation pipeline agents (Flutter module)
 ├── config/                  # Application settings and provider configuration
 ├── core/                    # Shared logging, cost tracking, and provider utilities
 ├── dashboard/               # FastAPI backend and dashboard API server
@@ -322,7 +322,7 @@ docker-compose up -d
 Then run an RQ worker if configured:
 
 ```bash
-rq worker flutter_ai_factory
+rq worker ai_software_factory
 ```
 
 ---

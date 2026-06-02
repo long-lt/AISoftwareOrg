@@ -11,8 +11,10 @@ import urllib.request
 import urllib.error
 from pathlib import Path
 from typing import Any, Optional
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
+
+from dashboard.routers.auth import require_auth
 
 from config.env_file import write_env_value
 from config.providers import (
@@ -156,7 +158,7 @@ async def add_provider_body(payload: ProviderCreatePayload) -> dict[str, Any]:
 
 
 @router.get("/providers")
-async def get_providers() -> dict[str, Any]:
+async def get_providers(_auth: dict = Depends(require_auth)) -> dict[str, Any]:
     from dashboard.app import settings
     return provider_registry_payload(
         active_provider=settings.llm_provider,
@@ -235,7 +237,7 @@ async def delete_provider(name: str) -> dict[str, Any]:
 
 
 @router.post("/providers/{name}/use")
-async def use_provider(name: str) -> dict[str, Any]:
+async def use_provider(name: str, _auth: dict = Depends(require_auth)) -> dict[str, Any]:
     from dashboard.app import settings
     try:
         provider = get_enabled_provider(name, settings.llm_providers_file)

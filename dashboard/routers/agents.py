@@ -9,8 +9,10 @@ import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
+
+from dashboard.routers.auth import require_auth
 
 from config.env_file import write_env_value
 from dashboard.database import _connect
@@ -30,7 +32,7 @@ class SettingsRequest(BaseModel):
 
 
 @router.get("/agents/config")
-def get_all_agents_config() -> list[dict[str, Any]]:
+def get_all_agents_config(_auth: dict = Depends(require_auth)) -> list[dict[str, Any]]:
     with _connect() as connection:
         rows = connection.execute("SELECT agent_id, name, model, system_prompt, updated_at FROM agents_config").fetchall()
     return [dict(row) for row in rows]
@@ -64,7 +66,7 @@ def get_single_agent(agent_id: str) -> dict[str, Any]:
 
 
 @router.patch("/agents/{agent_id}")
-def patch_agent(agent_id: str, payload: AgentConfigRequest) -> dict[str, Any]:
+def patch_agent(agent_id: str, payload: AgentConfigRequest, _auth: dict = Depends(require_auth)) -> dict[str, Any]:
     now = datetime.now().isoformat()
     with _connect() as connection:
         existing = connection.execute("SELECT agent_id FROM agents_config WHERE agent_id = ?", (agent_id,)).fetchone()

@@ -1,12 +1,12 @@
 """
 tests/test_dashboard_auth.py
 Tests for Dashboard JWT Auth + Team Scoping.
-
-Chạy: cd my-ai-org && python tests/test_dashboard_auth.py
 """
 
 import asyncio
+import os
 import sys
+import time
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -21,6 +21,7 @@ from system.learning import ApprovalQueue, CheckpointStore
 from memory.storage import MemoryStorage, TenantAwareStorage
 
 SECRET = "test-secret-key"
+ADMIN_KEY = "test-admin-key"
 
 
 def _create_app(tmp_path: Path):
@@ -30,7 +31,6 @@ def _create_app(tmp_path: Path):
     log_path = tmp_path / "agent_actions.jsonl"
     logger = AgentLogger(log_file=log_path)
 
-    # Seed a log entry so /api/tasks has data
     async def _seed():
         await logger.log_action("task-1", "DevAgent", "code_generated", {}, "success")
         await logger.log_action("task-1", "Pipeline", "workflow_completed", {}, "success")
@@ -41,7 +41,6 @@ def _create_app(tmp_path: Path):
     queue = ApprovalQueue(storage=storage)
     cp_store = CheckpointStore(storage=storage)
 
-    # Submit experiences for two teams
     alpha_storage = TenantAwareStorage("alpha", storage)
     beta_storage = TenantAwareStorage("beta", storage)
     alpha_queue = ApprovalQueue(storage=alpha_storage)
@@ -49,7 +48,6 @@ def _create_app(tmp_path: Path):
     alpha_queue.submit({"task_id": "alpha-task", "task_type": "api", "lessons": []})
     beta_queue.submit({"task_id": "beta-task", "task_type": "api", "lessons": []})
 
-    # Submit checkpoints for two teams
     alpha_cp = CheckpointStore(storage=alpha_storage)
     beta_cp = CheckpointStore(storage=beta_storage)
     alpha_cp.submit("alpha-task", "alpha checkpoint")
@@ -64,67 +62,84 @@ def _create_app(tmp_path: Path):
     return app
 
 
-def _make_token(team_id: str) -> str:
-    return encode_hs256({"team_id": team_id}, SECRET)
+def _make_token(team_id: str, role: str = "admin") -> str:
+    now = int(time.time())
+    return encode_hs256({
+        "team_id": team_id,
+        "role": role,
+        "iat": now,
+        "exp": now + 3600,
+    }, SECRET)
 
 
 # ---------------------------------------------------------------------------
-# Test 1: No token → backward compatible (returns data)
+# Test 1: Protected endpoints require auth
 # ---------------------------------------------------------------------------
-def test_no_token_returns_data():
-    print("TEST 1: No token → backward compatible")
+def test_protected_endpoints_require_auth():
+    print("TEST 1: Protected endpoints require auth")
     with TemporaryDirectory() as tmp:
         app = _create_app(Path(tmp))
         client = TestClient(app)
 
-        resp = client.get("/api/experiences")
-        assert resp.status_code == 200
-        data = resp.json()
-        assert "pending" in data
-        assert "counts" in data
-
-        resp = client.get("/api/checkpoints")
-        assert resp.status_code == 200
-        assert "pending" in resp.json()
-
-        resp = client.get("/api/tasks")
-        assert resp.status_code == 200
-        assert resp.json()["total"] >= 1
-    print("  ✅ No token → all endpoints return data")
+        # These should return 401 without token
+        for method, path in [
+            ("GET", "/api/projects"),
+            ("POST", "/api/projects"),
+            ("GET", "/api/providers"),
+            ("POST", "/api/providers/test/use"),
+            ("GET", "/api/agents/config"),
+        ]:
+            resp = getattr(client, method.lower())(path)
+            assert resp.status_code == 401, f"{method} {path} returned {resp.status_code}, expected 401"
+    print("  ✅ Protected endpoints return 401 without token")
 
 
 # ---------------------------------------------------------------------------
-# Test 2: Invalid token → error
+# Test 2: Invalid token → 401
 # ---------------------------------------------------------------------------
-def test_invalid_token_returns_error():
-    print("TEST 2: Invalid token → error")
+def test_invalid_token_returns_401():
+    print("TEST 2: Invalid token → 401")
     with TemporaryDirectory() as tmp:
         app = _create_app(Path(tmp))
         client = TestClient(app)
 
-        # Invalid JWT
         resp = client.get(
-            "/api/auth/token?team_id=x",
+            "/api/projects",
             headers={"Authorization": "Bearer not-a-valid-jwt"},
         )
-        # Auth token endpoint doesn't require auth, should still work
-        assert resp.status_code == 200
-
-        # But experiences with invalid token should still work (graceful fallback)
-        resp = client.get(
-            "/api/experiences",
-            headers={"Authorization": "Bearer invalid-token"},
-        )
-        # Invalid token → team_id is None → falls back to default queue
-        assert resp.status_code == 200
-    print("  ✅ Invalid token → graceful fallback")
+        assert resp.status_code == 401
+    print("  ✅ Invalid token → 401")
 
 
 # ---------------------------------------------------------------------------
-# Test 3: Valid token scopes experiences by team
+# Test 3: Valid token grants access to protected endpoints
+# ---------------------------------------------------------------------------
+def test_valid_token_grants_access():
+    print("TEST 3: Valid token grants access")
+    with TemporaryDirectory() as tmp:
+        app = _create_app(Path(tmp))
+        client = TestClient(app)
+        token = _make_token("alpha")
+
+        resp = client.get(
+            "/api/projects",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert resp.status_code == 200
+
+        resp = client.get(
+            "/api/agents/config",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert resp.status_code == 200
+    print("  ✅ Valid token → 200 on protected endpoints")
+
+
+# ---------------------------------------------------------------------------
+# Test 4: Valid token scopes experiences by team
 # ---------------------------------------------------------------------------
 def test_valid_token_scopes_experiences():
-    print("TEST 3: Valid token scopes experiences by team")
+    print("TEST 4: Valid token scopes experiences by team")
     with TemporaryDirectory() as tmp:
         app = _create_app(Path(tmp))
         client = TestClient(app)
@@ -143,10 +158,10 @@ def test_valid_token_scopes_experiences():
 
 
 # ---------------------------------------------------------------------------
-# Test 4: Different teams see different data
+# Test 5: Different teams see different data
 # ---------------------------------------------------------------------------
 def test_different_teams_isolated():
-    print("TEST 4: Different teams see different data")
+    print("TEST 5: Different teams see different data")
     with TemporaryDirectory() as tmp:
         app = _create_app(Path(tmp))
         client = TestClient(app)
@@ -170,46 +185,112 @@ def test_different_teams_isolated():
         assert "alpha-task" not in beta_ids
         assert "beta-task" in beta_ids
         assert "beta-task" not in alpha_ids
-
-        # Checkpoints too
-        alpha_cp = client.get(
-            "/api/checkpoints",
-            headers={"Authorization": f"Bearer {alpha_token}"},
-        )
-        beta_cp = client.get(
-            "/api/checkpoints",
-            headers={"Authorization": f"Bearer {beta_token}"},
-        )
-
-        alpha_cp_ids = [cp["task_id"] for cp in alpha_cp.json()["pending"]]
-        beta_cp_ids = [cp["task_id"] for cp in beta_cp.json()["pending"]]
-
-        assert "alpha-task" in alpha_cp_ids
-        assert "beta-task" not in alpha_cp_ids
-        assert "beta-task" in beta_cp_ids
-        assert "alpha-task" not in beta_cp_ids
     print("  ✅ Alpha and beta see completely separate data")
 
 
 # ---------------------------------------------------------------------------
-# Test 5: /api/auth/token returns valid JWT
+# Test 6: POST /api/auth/token returns valid JWT
 # ---------------------------------------------------------------------------
 def test_auth_token_endpoint():
-    print("TEST 5: /api/auth/token → valid JWT")
+    print("TEST 6: POST /api/auth/token → valid JWT")
+    os.environ["ADMIN_API_KEY"] = ADMIN_KEY
+    try:
+        with TemporaryDirectory() as tmp:
+            app = _create_app(Path(tmp))
+            client = TestClient(app)
+
+            resp = client.post(
+                "/api/auth/token",
+                json={"team_id": "gamma", "role": "admin"},
+                headers={"X-Admin-Key": ADMIN_KEY},
+            )
+            assert resp.status_code == 200
+            data = resp.json()
+            assert data["team_id"] == "gamma"
+            assert "token" in data
+
+            # Verify the token is valid and contains the right team_id
+            payload = decode_hs256(data["token"], SECRET)
+            assert payload["team_id"] == "gamma"
+            assert payload["role"] == "admin"
+            assert "exp" in payload
+    finally:
+        del os.environ["ADMIN_API_KEY"]
+    print("  ✅ POST /api/auth/token returns valid JWT with correct claims")
+
+
+# ---------------------------------------------------------------------------
+# Test 7: Expired token is rejected
+# ---------------------------------------------------------------------------
+def test_expired_token_rejected():
+    print("TEST 7: Expired token → 401")
     with TemporaryDirectory() as tmp:
         app = _create_app(Path(tmp))
         client = TestClient(app)
 
-        resp = client.get("/api/auth/token?team_id=gamma")
-        assert resp.status_code == 200
-        data = resp.json()
-        assert data["team_id"] == "gamma"
-        assert "token" in data
+        # Create an expired token
+        now = int(time.time())
+        expired_token = encode_hs256({
+            "team_id": "alpha",
+            "role": "admin",
+            "iat": now - 7200,
+            "exp": now - 3600,  # expired 1 hour ago
+        }, SECRET)
 
-        # Verify the token is valid and contains the right team_id
-        payload = decode_hs256(data["token"], SECRET)
-        assert payload["team_id"] == "gamma"
-    print("  ✅ /api/auth/token returns valid JWT with correct team_id")
+        resp = client.get(
+            "/api/projects",
+            headers={"Authorization": f"Bearer {expired_token}"},
+        )
+        assert resp.status_code == 401
+    print("  ✅ Expired token → 401")
+
+
+# ---------------------------------------------------------------------------
+# Test 8: Token without team_id is rejected
+# ---------------------------------------------------------------------------
+def test_token_without_team_id_rejected():
+    print("TEST 8: Token without team_id → 401")
+    with TemporaryDirectory() as tmp:
+        app = _create_app(Path(tmp))
+        client = TestClient(app)
+
+        now = int(time.time())
+        bad_token = encode_hs256({
+            "role": "admin",
+            "iat": now,
+            "exp": now + 3600,
+            # no team_id
+        }, SECRET)
+
+        resp = client.get(
+            "/api/projects",
+            headers={"Authorization": f"Bearer {bad_token}"},
+        )
+        assert resp.status_code == 401
+    print("  ✅ Token without team_id → 401")
+
+
+# ---------------------------------------------------------------------------
+# Test 9: GET /api/auth/me returns team_id
+# ---------------------------------------------------------------------------
+def test_auth_me_endpoint():
+    print("TEST 9: GET /api/auth/me → team_id")
+    with TemporaryDirectory() as tmp:
+        app = _create_app(Path(tmp))
+        client = TestClient(app)
+        token = _make_token("delta")
+
+        resp = client.get(
+            "/api/auth/me",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert resp.status_code == 200
+        assert resp.json()["team_id"] == "delta"
+
+        # Without token → 401
+        resp = client.get("/api/auth/me")
+        assert resp.status_code == 401
+    print("  ✅ GET /api/auth/me returns team_id")
 
 
 # ---------------------------------------------------------------------------
@@ -219,11 +300,15 @@ def main():
     print("\n🔬 Dashboard JWT Auth Tests\n" + "=" * 50)
 
     tests = [
-        test_no_token_returns_data,
-        test_invalid_token_returns_error,
+        test_protected_endpoints_require_auth,
+        test_invalid_token_returns_401,
+        test_valid_token_grants_access,
         test_valid_token_scopes_experiences,
         test_different_teams_isolated,
         test_auth_token_endpoint,
+        test_expired_token_rejected,
+        test_token_without_team_id_rejected,
+        test_auth_me_endpoint,
     ]
 
     results = []

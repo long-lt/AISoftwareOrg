@@ -16,7 +16,7 @@ from workflows.phase_registry import (
 )
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-GENERATED_APPS_DIR = ROOT_DIR / "generated_apps"
+GENERATED_APPS_DIR = ROOT_DIR / "workspace" / "generated_apps"
 DB_PATH = ROOT_DIR / "dashboard" / "data" / "app.db"
 
 JOB_STATUSES = {"queued", "running", "succeeded", "failed", "cancelled", "cancel_requested"}

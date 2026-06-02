@@ -74,3 +74,33 @@ def get_team_id_from_token(request: Request, secret: str) -> str | None:
         return payload.get("team_id") or None
     except (InvalidTokenError, IndexError):
         return None
+
+
+def _decode_token_from_request(request: Request) -> dict[str, Any]:
+    """Decode and validate JWT from Authorization header. Raises 401 on failure."""
+    auth = request.headers.get("Authorization", "")
+    if not auth.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
+    secret = request.app.state.secret
+    try:
+        return decode_hs256(auth[7:], secret)
+    except InvalidTokenError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+
+
+async def require_auth(request: Request) -> dict[str, Any]:
+    """FastAPI dependency: requires valid JWT. Returns payload dict."""
+    return _decode_token_from_request(request)
+
+
+def require_role(*allowed_roles: str):
+    """FastAPI dependency factory: requires JWT with specific role(s)."""
+
+    async def _check(request: Request) -> dict[str, Any]:
+        payload = _decode_token_from_request(request)
+        role = payload.get("role", "")
+        if role not in allowed_roles:
+            raise HTTPException(status_code=403, detail=f"Role '{role}' not authorized. Required: {allowed_roles}")
+        return payload
+
+    return _check

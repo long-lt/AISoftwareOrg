@@ -11,6 +11,7 @@ import base64
 import hashlib
 import hmac
 import json
+import time
 from datetime import datetime
 from typing import Any
 
@@ -65,6 +66,30 @@ def decode_hs256(token: str, secret: str) -> dict[str, Any]:
     payload = _decode_json_segment(payload_segment)
     if not isinstance(payload, dict):
         raise InvalidTokenError("JWT payload must be a JSON object")
+
+    # Validate expiration
+    now = int(time.time())
+    exp = payload.get("exp")
+    if exp is not None:
+        try:
+            if int(exp) < now:
+                raise InvalidTokenError("JWT has expired")
+        except (ValueError, TypeError) as exc:
+            raise InvalidTokenError("Invalid exp claim in JWT") from exc
+
+    # Validate issued-at (not in the far future)
+    iat = payload.get("iat")
+    if iat is not None:
+        try:
+            if int(iat) > now + 300:  # 5 min clock skew tolerance
+                raise InvalidTokenError("JWT iat is in the future")
+        except (ValueError, TypeError) as exc:
+            raise InvalidTokenError("Invalid iat claim in JWT") from exc
+
+    # Validate required claims
+    if not payload.get("team_id"):
+        raise InvalidTokenError("JWT missing team_id claim")
+
     return payload
 
 
