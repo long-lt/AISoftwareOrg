@@ -1,160 +1,527 @@
 # Unified AI Software Factory
+
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-**Unified AI Software Factory (`unified-ai-software-org`)** là một nền tảng nhà máy phần mềm tự động hóa toàn phần (Software Factory) thế hệ mới. Dự án được thiết lập bằng cách hợp nhất hai hệ thống AI Agent tiên tiến:
-1. **AISoftwareOrg**: Khung điều phối đa tác nhân (Multi-Agent System) mô phỏng một tổ chức phần mềm thực tế với các vị trí chuyên trách (PM, Dev, QA, Git, DevOps) hoạt động bất đồng bộ trên lõi điều phối `LangGraph`.
-2. **flutter_ai_factory**: Quy trình khép kín chuyên sâu 12 bước (12-Phase Pipeline) tự động sinh mã nguồn ứng dụng di động Flutter và API Backend từ mô tả ngôn ngữ tự nhiên, tự sửa lỗi Dart qua phân tích QA tĩnh và smoke test.
+**Unified AI Software Factory** is an experimental AI-powered software factory designed to automate the process of planning, generating, validating, and packaging software projects.
 
-Hệ thống cung cấp một bảng quản trị độc lập (SaaS Dashboard) tinh xảo được tích hợp trực tiếp, giao tiếp qua REST APIs thời gian thực để giám sát chi tiết hiệu năng, chi phí tokens và lịch sử hoạt động của các bots.
+The project combines two complementary AI-agent systems:
 
----
+1. **AISoftwareOrg** — a multi-agent software organization framework that simulates real software team roles such as Product Manager, Planner, Developer, QA, Reviewer, DevOps, and Git Agent.
+2. **Flutter AI Factory** — a 12-phase application generation pipeline that creates Flutter mobile apps and optional backend APIs from natural language requirements.
 
-## 📚 Tài liệu kỹ thuật dự án (System Documentation)
-
-Hệ thống cung cấp bộ tài liệu kỹ thuật, kế hoạch phát triển và phân tích kiến trúc chi tiết đặt tại thư mục `docs/`. Bạn có thể truy cập nhanh qua các liên kết dưới đây:
-
-*   **[CLAUDE.md (Developer Guide)](file:///Users/long/Desktop/AI_/AISoftwareOrg/docs/CLAUDE.md)** hoặc bản sao tại gốc **[CLAUDE.md](file:///Users/long/Desktop/AI_/AISoftwareOrg/CLAUDE.md)**: Hướng dẫn phát triển, thiết lập môi trường ảo, các lệnh vận hành Backend/Frontend, và suite kiểm thử tự động.
-*   **[Báo cáo tổng quan dự án (Project Review Dashboard)](file:///Users/long/Desktop/AI_/AISoftwareOrg/docs/project_review.html)**: Bảng giao diện HTML đánh giá chi tiết mức độ hoàn thiện, danh sách AI agents chuyên trách, và chất lượng mã nguồn.
-*   **[Kế hoạch triển khai dự án (Project Plan - Markdown)](file:///Users/long/Desktop/AI_/AISoftwareOrg/docs/project_plane.md)**: Phân tích lộ trình phát triển 4 giai đoạn, quản trị rủi ro kỹ thuật và thiết kế hệ thống.
-*   **[Kế hoạch triển khai dự án tương tác (Project Plan - Interactive Dashboard)](file:///Users/long/Desktop/AI_/AISoftwareOrg/docs/project_plane.html)**: Bản kế hoạch HTML tương tác với timeline động và bộ ước tính chi phí API LLM giả lập.
-*   **[Bản đồ cải tiến kiến trúc (Improvement Roadmap)](file:///Users/long/Desktop/AI_/AISoftwareOrg/docs/improvement_roadmap.html)**: Dashboard theo dõi và lọc danh sách cải tiến kỹ thuật (P0, P1, P2) cho hệ thống, backend, và agents.
-*   **[Tổng quan kiến trúc hệ thống (Architecture Overview)](file:///Users/long/Desktop/AI_/AISoftwareOrg/docs/architecture_overview.html)**: Phân tích luồng dữ liệu điều phối LangGraph bằng sơ đồ vector, ma trận phân quyền bảo mật (RBAC), và chi tiết 12 bước Flutter pipeline.
-*   **[Nhật ký thay đổi (Changelog)](file:///Users/long/Desktop/AI_/AISoftwareOrg/docs/changelog.md)**: Theo dõi tiến trình cập nhật tính năng, sửa lỗi và nâng cấp phiên bản hệ thống qua các mốc v1.0.0, v1.1.0, v1.2.0.
-*   **[Hướng dẫn vận hành cho Quản trị viên (Operator & Admin Manual)](file:///Users/long/Desktop/AI_/AISoftwareOrg/docs/admin_manual.html)**: Cẩm nang hướng dẫn sử dụng Dashboard, quản lý hàng đợi tri thức HITL Queue, phê duyệt các Checkpoints nhạy cảm và đổi mô hình LLM.
+The platform also includes a web-based dashboard for monitoring jobs, agents, generated projects, token usage, provider configuration, human-in-the-loop approvals, and build status.
 
 ---
 
-## 📁 Cấu trúc thư mục dự án
+## Project Status
 
-Mã nguồn được tổ chức phân lớp rõ ràng, phân tách rạch ròi giữa phân hệ API Server (Backend) và phân hệ Giao diện SPA (Frontend):
+This repository is currently in active development.
 
-```
+Some components are functional, while others are still experimental or under refinement. The current focus is to stabilize the backend, job pipeline, authentication, queue system, dashboard APIs, and generated Flutter project workflow.
+
+Recommended current usage:
+
+* Local experimentation
+* AI-agent workflow research
+* Flutter code generation experiments
+* Software factory architecture prototyping
+* Dashboard and automation system development
+
+Not yet recommended for:
+
+* Production deployment without additional hardening
+* Public SaaS usage
+* Handling sensitive user data
+* Fully unattended enterprise workflows
+
+---
+
+## Core Features
+
+### 12-Phase Flutter App Generation Pipeline
+
+The system can generate a Flutter application through a structured software delivery workflow:
+
+1. Product brief creation
+2. Business analysis
+3. Backend and API planning
+4. Architecture design
+5. UI/UX specification
+6. Flutter source code generation
+7. Static QA checks
+8. Refactor and repair loop
+9. Runtime verification
+10. Security review
+11. Release review
+12. Source code export
+
+---
+
+### Multi-Agent Software Organization
+
+The platform defines specialized AI agents for different software engineering responsibilities:
+
+* Product Manager Agent
+* Planner Agent
+* Developer Agent
+* QA Agent
+* Reviewer Agent
+* DevOps Agent
+* Git Agent
+* Business Analyst Agent
+* Architect Agent
+* UI/UX Agent
+* Security Agent
+* Runtime Verification Agent
+
+Each agent is designed to focus on a specific stage of the software delivery lifecycle.
+
+---
+
+### Automated Repair Loop
+
+The QA Agent can run static analysis against generated Flutter code.
+
+If issues are detected, the bug report is passed to the Refactor Agent, which attempts to repair the generated source code. This loop can repeat until the project passes validation or reaches the configured repair attempt limit.
+
+---
+
+### Human-in-the-Loop Checkpoints
+
+The system supports human approval flows for sensitive actions, generated knowledge, and critical workflow checkpoints.
+
+This is designed to prevent fully autonomous agents from making unsafe or unwanted decisions without review.
+
+---
+
+### Dashboard and Monitoring
+
+The dashboard is intended to provide visibility into:
+
+* Active generation jobs
+* Job phase progress
+* Agent activity
+* Provider configuration
+* Token and cost usage
+* Human approval queue
+* Generated source files
+* Downloadable project exports
+
+---
+
+## Repository Structure
+
+```text
 unified-ai-software-org/
-├── dashboard/               # [Backend] FastAPI API Server (app.py, jwt_utils.py)
-├── frontend/                # [Frontend] Giao diện SPA viết bằng Vite & Vanilla JS
-│   ├── src/                 # Mã nguồn JS, Router, Styles, Views của Dashboard
-│   ├── public/              # File tĩnh của Frontend
-│   ├── dist/                # Bản phân phối production sau khi biên dịch
-│   └── package.json         # Quản lý script và dependencies của Frontend
-├── agents/                  # [Core] Định nghĩa các tác nhân AI của 2 nhóm chuyên trách
-│   ├── software_org/        # Bots quản trị: pm_agent, planner_agent, qa_agent, git_agent...
-│   └── flutter_factory/     # Bots chế tạo: ba_agent, architect_agent, dev_agent, security_agent...
-├── config/                  # Thiết lập cấu hình hệ thống, env và LLM Providers Registry
-├── core/                    # Lõi vận hành: logging tập trung, cost tracker, registry providers
-├── memory/ & storage/       # Lưu trữ tri thức agent tự học, checkpoints và cấu hình SQLite
-├── system/                  # Human-in-the-loop: Hàng đợi duyệt kinh nghiệm và checkpoints
-├── workflows/               # Định nghĩa kịch bản luồng công việc (Flutter MVP pipeline 12 bước)
-├── workspace/               # Phân vùng làm việc cô lập chứa code và specs của các app di động được sinh ra
-├── requirements.txt         # Quản lý dependencies Python của Backend
-└── docker-compose.yml       # Khởi động dịch vụ hàng đợi Redis nhanh
+├── agents/                  # AI agent definitions and role-specific logic
+│   ├── software_org/        # Software organization agents
+│   └── flutter_factory/     # Flutter generation pipeline agents
+├── config/                  # Application settings and provider configuration
+├── core/                    # Shared logging, cost tracking, and provider utilities
+├── dashboard/               # FastAPI backend and dashboard API server
+│   ├── routers/             # API route modules
+│   ├── app.py               # FastAPI application entry point
+│   ├── database.py          # SQLite persistence layer
+│   ├── jwt_utils.py         # JWT helper utilities
+│   └── queue_manager.py     # Background job queue handling
+├── frontend/                # Vite-based dashboard frontend
+│   ├── src/                 # Frontend source code
+│   ├── public/              # Static assets
+│   ├── dist/                # Production build output
+│   └── package.json         # Frontend scripts and dependencies
+├── memory/                  # Agent memory and learned knowledge storage
+├── storage/                 # Persistent runtime storage
+├── system/                  # Human-in-the-loop approval and checkpoint logic
+├── workflows/               # Workflow definitions and pipeline wrappers
+├── workspace/               # Generated apps, job outputs, and temporary workspaces
+├── docs/                    # Technical documentation
+├── requirements.txt         # Python dependencies
+└── docker-compose.yml       # Redis and local service orchestration
 ```
 
 ---
 
-## ⚡ Các tính năng cốt lõi
+## Requirements
 
-- **Luồng sinh ứng dụng di động 12 bước (12-Phase Pipeline)**: Quy trình khép kín đi từ specs nghiệp vụ (`BA`) &rarr; Thiết kế cấu trúc dữ liệu và API (`Backend`) &rarr; Thiết kế kiến trúc (`Architect`) &rarr; Thiết kế giao diện (`UI/UX`) &rarr; Lập trình code Dart (`Dev`) &rarr; Phân tích lỗi QA tĩnh &rarr; Tự sửa code (`Refactor/Repair Loop`) &rarr; Xác minh khởi chạy (`Runtime`) &rarr; Quét bảo mật &rarr; Phê duyệt (`Reviewer`) &rarr; Đóng gói nén mã nguồn (`Export`).
-- **Vòng lặp sửa lỗi tự động (Repair Loop)**: QA Agent thực hiện phân tích tĩnh mã nguồn bằng lệnh `flutter analyze`. Nếu phát hiện lỗi Dart (status FAIL), danh sách bug (`bug_list.md`) sẽ được chuyển tới Refactor Agent để tự động viết đè sửa code. Vòng lặp này thực hiện liên tục cho đến khi đạt chỉ số PASS biên dịch hoặc vượt mức `max_repair_attempts`.
-- **Hệ thống tự học & Checkpoints (Human-in-the-Loop)**: Hỗ trợ các chốt chặn phê duyệt mã nguồn của tác nhân và hàng đợi `ApprovalQueue` để Quản trị viên duyệt/từ chối các tri thức, kinh nghiệm chạy task mà Agent tự đúc rút.
-- **Phân quyền tác nhân (RBAC)**: Giới hạn nghiêm ngặt quyền đọc/ghi file hệ thống của từng agent (quyền `READ`, `WRITE`, `EXECUTE`, `CRITICAL`), ghi nhận nhật ký vi phạm bảo mật thời gian thực.
-- **Giám sát chi phí API Tokens thật**: Ghi nhận chi tiết số tiền mặt USD thật và tokens tiêu tốn của mỗi lần Agent gọi mô hình LLM, thống kê biểu đồ donut phân bổ chi phí trực tiếp trên Dashboard.
+Before running the project, install:
+
+* Python 3.10+
+* Node.js 18+
+* Docker
+* Redis, if using the RQ queue backend
+* Flutter SDK, if running full Flutter validation locally
 
 ---
 
-## 🚀 Hướng dẫn khởi chạy hệ thống
+## Environment Setup
 
-### 1. Chuẩn bị môi trường
-- Hệ điều hành hỗ trợ: macOS, Linux, Windows.
-- Yêu cầu cài đặt sẵn: **Python 3.10+**, **Node.js 18+**, **Docker/Redis**.
+Copy the example environment file:
 
-### 2. Thiết lập biến môi trường
-Sao chép file `.env.example` thành `.env` tại thư mục gốc và điền các khóa API tương ứng:
 ```bash
 cp .env.example .env
 ```
-Các cấu hình quan trọng trong `.env`:
-- `LLM_PROVIDER`: mặc định chọn `openrouter` (OpenRouter) để tối ưu chi phí, hoặc `openai`, `gemini`.
-- `LLM_API_KEY`: API Key tương ứng với nhà cung cấp.
-- `JOB_QUEUE_BACKEND`: thiết lập `thread` (chạy nền bất đồng bộ qua Python Threading) hoặc `rq` (hàng đợi Redis chuyên nghiệp).
-- `REDIS_URL`: đường dẫn kết nối Redis (mặc định `redis://localhost:6379/0`).
+
+Then configure the required values:
+
+```env
+APP_ENV=development
+DASHBOARD_SECRET=change-me
+LLM_PROVIDER=openrouter
+LLM_API_KEY=your_api_key_here
+LLM_BASE_URL=https://openrouter.ai/api/v1
+LLM_MODEL=google/gemini-2.5-flash
+JOB_QUEUE_BACKEND=thread
+REDIS_URL=redis://localhost:6379/0
+MAX_REPAIR_ATTEMPTS=2
+```
+
+For production, always set a strong `DASHBOARD_SECRET` and avoid using development defaults.
 
 ---
 
-### 3. Vận hành dịch vụ Backend & APIs
+## Backend Setup
 
-#### Bước A: Khởi động hàng đợi Redis (Nếu cấu hình `rq`)
+Create and activate a Python virtual environment:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Start the FastAPI server:
+
+```bash
+uvicorn dashboard.app:app --host 0.0.0.0 --port 8000 --reload
+```
+
+The API server will be available at:
+
+```text
+http://localhost:8000
+```
+
+Swagger API documentation:
+
+```text
+http://localhost:8000/docs
+```
+
+Health check:
+
+```text
+http://localhost:8000/health
+```
+
+Readiness check:
+
+```text
+http://localhost:8000/ready
+```
+
+---
+
+## Frontend Setup
+
+Go to the frontend directory:
+
+```bash
+cd frontend
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+The frontend development server will be available at:
+
+```text
+http://localhost:5173
+```
+
+Build the frontend for production:
+
+```bash
+npm run build
+```
+
+After building, the backend can serve the compiled dashboard directly from the `frontend/dist` directory.
+
+---
+
+## Queue Backend
+
+The project supports two queue modes.
+
+### Thread Mode
+
+Thread mode is simple and works for local development:
+
+```env
+JOB_QUEUE_BACKEND=thread
+```
+
+This mode starts jobs in background Python threads.
+
+### RQ Mode
+
+RQ mode is recommended for more reliable background processing:
+
+```env
+JOB_QUEUE_BACKEND=rq
+REDIS_URL=redis://localhost:6379/0
+```
+
+Start Redis:
+
 ```bash
 docker-compose up -d
 ```
 
-#### Bước B: Kích hoạt môi trường ảo và cài đặt dependencies Python
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
+Then run an RQ worker if configured:
 
-#### Bước C: Khởi động API Server
 ```bash
-uvicorn dashboard.app:app --host 0.0.0.0 --port 8000 --reload
+rq worker flutter_ai_factory
 ```
-Server APIs sẽ chạy tại địa chỉ: `http://localhost:8000`.
-- Tài liệu tự động Swagger API Docs: [http://localhost:8000/docs](http://localhost:8000/docs).
 
 ---
 
-### 4. Vận hành phân hệ Giao diện (Frontend UI)
+## Main API Endpoints
 
-Dự án hỗ trợ cả hai cơ chế vận hành giao diện linh hoạt:
+### System
 
-#### Cách 1: Chạy song song trong môi trường Developer (Dev Mode)
-Chạy hot-reload Frontend bằng máy chủ Vite:
-```bash
-cd frontend
-npm install   # Cài đặt thư viện nếu chưa có
-npm run dev
+```http
+GET /health
+GET /ready
+GET /api
 ```
-Giao diện Developer hoạt động tại: `http://localhost:5173`.
-*Lưu ý: Mọi yêu cầu `/api` gửi tới cổng 5173 sẽ được tự động chuyển tiếp (proxy) về cổng 8000 của Backend.*
 
-#### Cách 2: Tích hợp đóng gói sản xuất (Production Mode - Khuyên dùng)
-Biên dịch đóng gói toàn bộ Frontend sang HTML/JS tĩnh để Backend FastAPI tự phục vụ trực tiếp trên cùng một cổng `8000`:
-```bash
-cd frontend
-npm run build
+### Jobs
+
+```http
+GET /api/jobs
+POST /api/jobs
+GET /api/jobs/{slug}
+DELETE /api/jobs/{slug}
+POST /api/jobs/{slug}/cancel
+GET /api/jobs/{slug}/phases
+GET /api/jobs/{slug}/download
+GET /api/jobs/{slug}/code/tree
+GET /api/jobs/{slug}/code/file?path=
 ```
-Sau khi chạy build xong, bạn chỉ cần khởi động server Backend FastAPI và truy cập thẳng địa chỉ: `http://localhost:8000`. Giao diện Dashboard sẽ được nạp và hoạt động trực tiếp từ đây.
+
+### Agents
+
+```http
+GET /api/agents
+```
+
+### Providers and Models
+
+```http
+GET /api/providers
+POST /api/providers/{name}/use
+GET /api/models
+```
+
+### Observability
+
+```http
+GET /api/tasks
+GET /api/permissions
+GET /api/costs
+```
+
+### Human-in-the-Loop
+
+```http
+GET /api/experiences
+POST /api/experiences/{id}/approve
+GET /api/checkpoints
+```
 
 ---
 
-## 🛠️ Danh sách REST APIs chính (dashboard/app.py)
+## Example: Create a Generation Job
 
-Hệ thống Backend cung cấp bộ REST APIs đầy đủ để tương tác:
-
-- **Giám sát hoạt động**:
-  - `GET /api/tasks`: Lấy tỷ lệ thành công của các pipeline, tail logs nhiệm vụ.
-  - `GET /api/agents`: Stream logs Tail hoạt động chi tiết thời gian thực của từng bot.
-  - `GET /api/permissions`: Xem nhật ký vi phạm phân quyền RBAC của các Agent.
-  - `GET /api/costs`: Tổng hợp chi phí tokens USD theo agent và theo task.
-- **Dynamic Models & Providers Registry**:
-  - `GET /api/providers`: Lấy danh sách LLM Providers đang kích hoạt trong hệ thống.
-  - `POST /api/providers/{name}/use`: Kích hoạt đổi Provider LLM chủ động trực tiếp.
-  - `GET /api/models`: Lấy danh sách các models đang sẵn sàng từ API của Provider active.
-- **Human-in-the-Loop Gateways**:
-  - `GET /api/experiences`: Danh sách tri thức Agent tự đúc rút chờ phê duyệt.
-  - `POST /api/experiences/{id}/approve`: Duyệt nạp tri thức đó vào cơ sở dữ liệu chung.
-  - `GET /api/checkpoints`: Danh sách checkpoint tác vụ nhạy cảm đang bị tạm dừng chờ quản trị viên nhấn duyệt.
-- **Job Generation Engine**:
-  - `GET /api/jobs`: Danh sách ứng dụng di động đang được chế tạo hoặc đã thành công.
-  - `POST /api/jobs`: Điền mô tả, tính năng để gửi yêu cầu sinh app vào hàng đợi.
-  - `GET /api/jobs/{slug}/phases`: Trạng thái chi tiết của 12 phase cho một ứng dụng cụ thể.
-  - `GET /api/jobs/{slug}/download`: Tải gói mã nguồn zip nén hoàn chỉnh của ứng dụng.
+```bash
+curl -X POST http://localhost:8000/api/jobs \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Pantry Saver",
+    "description": "A Flutter app that tracks food expiration dates and suggests meals.",
+    "platform": "android,ios",
+    "style": "modern",
+    "backend": "none",
+    "features": "inventory, expiry reminders, meal suggestions, shopping list"
+  }'
+```
 
 ---
 
-## 📄 Bản quyền & Đóng góp
-Dự án được xây dựng và phát triển dưới dạng mã nguồn mở phục vụ cho các nghiên cứu về Hệ thống đa tác nhân (Multi-Agent Systems) tự trị biên dịch mã nguồn di động phức tạp.
+## Generated Output
+
+Generated projects are stored under:
+
+```text
+workspace/generated_apps/
+```
+
+A successful job may contain:
+
+```text
+workspace/generated_apps/{slug}/
+├── docs/
+│   ├── app_brief.md
+│   ├── requirements.md
+│   ├── architecture.md
+│   ├── design.md
+│   ├── test_report.md
+│   ├── runtime_report.md
+│   ├── security_report.md
+│   └── final_review.md
+├── source/
+│   ├── pubspec.yaml
+│   └── lib/
+├── backend/
+└── exports/
+    └── {slug}_source.zip
+```
+
+---
+
+## Documentation
+
+Technical documentation is available in the `docs/` directory.
+
+Recommended documents:
+
+* [Developer Guide](./docs/CLAUDE.md)
+* [Project Plan](./docs/project_plane.md)
+* [Changelog](./docs/changelog.md)
+* [Architecture Overview](./docs/architecture_overview.html)
+* [Improvement Roadmap](./docs/improvement_roadmap.html)
+* [Admin Manual](./docs/admin_manual.html)
+
+If a document is missing, it may still be under development.
+
+---
+
+## Development Roadmap
+
+### Phase 1 — Stabilize the Core
+
+* Harden authentication
+* Enforce production secrets
+* Improve job cancellation
+* Fix queue behavior
+* Improve SQLite concurrency
+* Add test coverage
+* Add CI workflow
+
+### Phase 2 — Improve Job Tracking
+
+* Add persistent job phase records
+* Add structured logs
+* Add retry and cancellation support
+* Add worker process support
+* Improve generated project export flow
+
+### Phase 3 — Improve Dashboard UX
+
+* Add project overview
+* Add job detail page
+* Add phase timeline
+* Add agent management
+* Add provider management
+* Add cost monitoring
+* Add human approval queue
+
+### Phase 4 — Improve Agent Quality
+
+* Improve prompts
+* Add model routing
+* Add memory review
+* Add better Flutter generation templates
+* Add backend generation support
+* Add security and release gates
+
+### Phase 5 — Production Hardening
+
+* Add Dockerfile
+* Add deployment guide
+* Add role-based access control
+* Add audit logs
+* Add backup and restore strategy
+* Add observability and alerting
+
+---
+
+## Known Limitations
+
+* Authentication is still being improved.
+* Thread-based jobs are intended mainly for development.
+* Some dashboard features may be partially implemented.
+* Some generated Flutter projects may require manual review.
+* Provider costs may vary depending on the selected LLM vendor.
+* Full production deployment requires additional security hardening.
+
+---
+
+## Security Notice
+
+Do not commit secrets, API keys, tokens, generated private data, or production `.env` files.
+
+Before deploying publicly, configure:
+
+* Strong `DASHBOARD_SECRET`
+* Admin authentication
+* Restricted CORS origins
+* Secure provider API keys
+* HTTPS
+* Proper file access controls
+* Job execution limits
+* Rate limiting
+
+---
+
+## Contributing
+
+Contributions are welcome.
+
+Before submitting changes:
+
+1. Create a feature branch.
+2. Keep changes focused.
+3. Update documentation when needed.
+4. Add tests for new backend logic.
+5. Run lint and tests before opening a pull request.
+
+Suggested branch naming:
+
+```text
+feature/job-phase-tracking
+fix/auth-token-security
+docs/update-readme
+```
+
+---
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License.
+
+See the [LICENSE](./LICENSE) file for details.
