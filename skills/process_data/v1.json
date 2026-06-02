@@ -1,0 +1,11 @@
+{
+  "name": "process_data",
+  "version": "v1",
+  "applies_to": "dev_agent",
+  "triggers": ["data", "sql", "query", "model"],
+  "steps": [
+    "Define Pydantic models for data validation",
+    "Implement data processing logic",
+    "Use try/except for database operations"
+  ]
+}

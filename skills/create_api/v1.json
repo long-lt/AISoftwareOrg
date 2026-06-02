@@ -1,0 +1,28 @@
+{
+  "name": "create_api",
+  "version": "v1",
+  "applies_to": "dev_agent",
+  "triggers": [
+    "api",
+    "endpoint",
+    "route",
+    "fastapi",
+    "http",
+    "get /",
+    "post /",
+    "put /",
+    "delete /"
+  ],
+  "steps": [
+    "Define the route path and HTTP method explicitly.",
+    "Validate request input with a Pydantic model or clear Python validation.",
+    "Keep business logic separate from transport concerns when practical.",
+    "Handle expected errors and return appropriate HTTP status codes.",
+    "Write concise docstrings for public endpoint functions.",
+    "Return predictable response shapes with typed values."
+  ],
+  "examples": [
+    "GET /users returns a list and supports pagination inputs.",
+    "POST /users validates the body, checks duplicates, and returns 201 on success."
+  ]
+}

@@ -1,0 +1,67 @@
+<!-- Top KPI metrics -->
+<div class="stat-row" style="display:flex; justify-content:space-between; margin-bottom:24px; background:var(--bg-card); padding:20px; border-radius:var(--radius); border:1px solid var(--border-color); flex-wrap:wrap; gap:16px;">
+  <div class="stat"><span class="stat-value" id="monitor-kpi-uptime" style="color:var(--accent-green)">99.9%</span><div class="stat-label">Uptime</div></div>
+  <div class="stat"><span class="stat-value" id="monitor-kpi-latency">0ms</span><div class="stat-label">Avg Latency</div></div>
+  <div class="stat"><span class="stat-value" id="monitor-kpi-errors" style="color:var(--accent-rose)">0.0%</span><div class="stat-label">Error Rate</div></div>
+  <div class="stat"><span class="stat-value" id="monitor-kpi-incidents" style="color:var(--accent-green)">0</span><div class="stat-label">Active Incidents</div></div>
+  <div class="stat"><span class="stat-value" id="monitor-kpi-tokens">0</span><div class="stat-label">Tokens Today</div></div>
+</div>
+
+<!-- Main Split Grid: Live SVG Chart + Service Health -->
+<div class="section-grid" style="display:grid; grid-template-columns: 2fr 1fr; gap:24px; margin-bottom:24px;">
+  
+  <!-- Live SVG Chart -->
+  <div class="card-panel">
+    <div class="card-panel-header" style="margin-bottom:12px;">
+      <h2>📈 Real-Time AI System Performance (Request Volume & Latency)</h2>
+      <span style="font-size:11px; color:var(--accent-cyan); font-weight:bold;">LIVE REFRESHING</span>
+    </div>
+    
+    <!-- SVG Chart Container -->
+    <div style="height:240px; position:relative; width:100%; margin-top:20px; background:rgba(0,0,0,0.1); border-radius:6px; overflow:hidden;">
+      <svg id="live-monitoring-svg" viewBox="0 0 600 200" style="width:100%; height:100%; display:block;">
+        <!-- Grids -->
+        <line x1="0" y1="50" x2="600" y2="50" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        <line x1="0" y1="100" x2="600" y2="100" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        <line x1="0" y1="150" x2="600" y2="150" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        
+        <!-- Smooth Path 1: Request Volume (Cyan) -->
+        <path d="M 0,160 Q 100,120 200,140 T 400,80 T 600,110" fill="none" stroke="var(--accent-cyan)" stroke-width="2" stroke-linecap="round"/>
+        
+        <!-- Smooth Path 2: Latency (Purple) -->
+        <path d="M 0,120 Q 100,80 200,95 T 400,130 T 600,70" fill="none" stroke="var(--accent-purple)" stroke-width="2" stroke-linecap="round" stroke-dasharray="3,3"/>
+      </svg>
+      <div style="position:absolute; bottom:10px; right:15px; display:flex; gap:12px; font-size:10px;">
+        <span style="color:var(--accent-cyan); font-weight:700;">● Requests Vol</span>
+        <span style="color:var(--accent-purple); font-weight:700;">● Latency (p95)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Live Services Health list -->
+  <div class="card-panel">
+    <h2>🔥 Live Services Health</h2>
+    <div id="monitor-services-health" style="display:flex; flex-direction:column; gap:14px; margin-top:20px;">
+      <div style="text-align:center; color:var(--text-muted); font-size:12.5px; padding:20px;">Đang tải danh sách dịch vụ...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Grid: Terminal logs + Latency by Region -->
+<div style="display:grid; grid-template-columns: 2fr 1fr; gap:24px;">
+  <!-- Terminal logs -->
+  <div class="card-panel">
+    <h2>📊 Real-Time Operations Logs</h2>
+    <div id="live-operations-logs" style="background:#090d16; border:1px solid var(--border-color); border-radius:6px; padding:15px; font-family:'JetBrains Mono',monospace; font-size:12px; color:#a5b4fc; height:240px; overflow-y:auto; line-height:1.6; margin-top:15px;">
+      <div style="text-align:center; color:var(--text-muted); font-size:12.5px; padding:20px;">Đang nạp logs hệ thống...</div>
+    </div>
+  </div>
+
+  <!-- Region latency -->
+  <div class="card-panel">
+    <h2>🗺️ Latency by Region (p95)</h2>
+    <div id="monitor-region-latency" style="display:flex; flex-direction:column; gap:10px; margin-top:20px; font-size:12.5px;">
+      <div style="text-align:center; color:var(--text-muted); font-size:12.5px; padding:20px;">Đang tính toán độ trễ vùng...</div>
+    </div>
+  </div>
+</div>

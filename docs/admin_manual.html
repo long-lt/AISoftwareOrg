@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operator & Admin Manual — Unified AI Software Factory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #05070f;
+            --bg-secondary: #0a0e1a;
+            --bg-card: rgba(16, 23, 41, 0.75);
+            --border-color: rgba(30, 48, 80, 0.5);
+            --border-hover: rgba(0, 240, 255, 0.4);
+            
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            
+            --accent-cyan: #00f0ff;
+            --accent-purple: #a855f7;
+            --accent-indigo: #6366f1;
+            --accent-green: #10b981;
+            --accent-yellow: #f59e0b;
+            --accent-red: #ef4444;
+            
+            --gradient-primary: linear-gradient(135deg, #00f0ff 0%, #a855f7 100%);
+            --shadow-neon: 0 0 25px rgba(0, 240, 255, 0.15);
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 40%),
+                linear-gradient(rgba(5, 7, 15, 0.98), rgba(5, 7, 15, 0.98));
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        /* Header */
+        header {
+            padding: 60px 0 30px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(180deg, rgba(10, 14, 26, 0.6) 0%, transparent 100%);
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-content p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+
+        /* Layout Grid */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sidebar Navigation */
+        .sidebar-nav {
+            position: sticky;
+            top: 40px;
+            height: fit-content;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 10px 15px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .nav-item:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .nav-item.active {
+            color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.08);
+            border-left: 3px solid var(--accent-cyan);
+        }
+
+        /* Content Sections */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .section-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            scroll-margin-top: 40px;
+        }
+
+        .section-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .section-card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-card h2 svg {
+            width: 24px;
+            height: 24px;
+            color: var(--accent-cyan);
+        }
+
+        .section-card h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin: 20px 0 10px;
+            color: var(--accent-cyan);
+        }
+
+        .section-card p {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        /* Bullet lists & Callouts */
+        ul {
+            padding-left: 20px;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .info-callout {
+            background: rgba(99, 102, 241, 0.06);
+            border-left: 4px solid var(--accent-indigo);
+            border-radius: 4px 8px 8px 4px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+        }
+
+        .warning-callout {
+            background: rgba(245, 158, 11, 0.06);
+            border-left: 4px solid var(--accent-yellow);
+            border-radius: 4px 8px 8px 4px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+        }
+
+        /* Monospace command style */
+        code {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            background: rgba(255,255,255,0.06);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-cyan);
+        }
+
+        .step-block {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: rgba(10, 14, 26, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+
+        .step-num {
+            background: var(--gradient-primary);
+            color: #fff;
+            font-weight: 700;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-content">
+            <h1>Operator & Admin Manual</h1>
+            <p>Hướng dẫn vận hành chi tiết dành cho Quản trị viên của Hệ thống AI Software Factory</p>
+        </div>
+    </header>
+
+    <main class="container layout-grid">
+        <!-- Sticky Sidebar Navigation -->
+        <aside class="sidebar-nav">
+            <a href="#intro" class="nav-item active" onclick="activateNav(this)">1. Giới thiệu tổng quan</a>
+            <a href="#hitl-queue" class="nav-item" onclick="activateNav(this)">2. Quản lý HITL Queue</a>
+            <a href="#checkpoints" class="nav-item" onclick="activateNav(this)">3. Phê duyệt Checkpoints</a>
+            <a href="#models" class="nav-item" onclick="activateNav(this)">4. Đăng ký & Cấu hình LLM</a>
+            <a href="#workspace" class="nav-item" onclick="activateNav(this)">5. Quản lý Workspace & ZIP</a>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Section 1: Introduction -->
+            <section id="intro" class="section-card">
+                <h2>
+                    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 111.063.852l-.708 2.836a.75.75 0 001.063.852l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path>
+                    </svg>
+                    1. Giới thiệu tổng quan vận hành
+                </h2>
+                <p>
+                    Chào mừng bạn đến với cẩm nang vận hành dành cho **Platform Owner** và **Engineering Manager**. Với vai trò Quản trị viên, bạn nắm giữ quyền kiểm soát tối cao đối với toàn bộ luồng sinh ứng dụng tự động, bảo mật phân quyền tác nhân, cấu hình các nhà cung cấp mô hình ngôn ngữ lớn (LLM Providers) và kiểm duyệt tri thức tự học của hệ thống.
+                </p>
+                <p>
+                    Dashboard quản trị giao tiếp qua REST APIs thời gian thực kết nối tới lõi điều phối LangGraph để cung cấp khả năng quan sát (observability) sâu sắc, theo dõi ngân sách token và can thiệp thủ công khi cần thiết.
+                </p>
+                <div class="info-callout">
+                    <strong>Thông tin cơ bản:</strong> FastAPI backend chạy mặc định tại cổng <code>8000</code>. Dashboard quản trị SPA Vite phục vụ trực tiếp tại địa chỉ <code>http://localhost:8000</code> trong chế độ Production hoặc <code>http://localhost:5173</code> trong chế độ phát triển (Developer mode).
+                </div>
+            </section>
+
+            <!-- Section 2: HITL Queue -->
+            <section id="hitl-queue" class="section-card">
+                <h2>
+                    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"></path>
+                    </svg>
+                    2. Quản lý Hàng đợi Kinh nghiệm tự học (HITL Experience DB)
+                </h2>
+                <p>
+                    Trong quá trình vá lỗi mã nguồn Flutter (Repair Loop), Refactor Agent sẽ rút ra các kinh nghiệm thực tế về việc dòng code Dart nào bị lỗi static analyze và cách viết đè sửa đổi thành công. Các tri thức này được gửi vào hàng đợi duyệt trước khi nạp chính thức vào cơ sở tri thức chung (Experience Knowledge Base).
+                </p>
+                
+                <h3>Các bước phê duyệt kinh nghiệm:</h3>
+                
+                <div class="step-block">
+                    <div class="step-num">1</div>
+                    <div>
+                        <strong>Truy cập hàng đợi:</strong> Điều hướng đến mục <strong>"Knowledge Hub"</strong> hoặc <strong>"HITL Queue"</strong> trên thanh menu trái của Dashboard để hiển thị danh sách các tri thức đang chờ phê duyệt.
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <div class="step-num">2</div>
+                    <div>
+                        <strong>Đánh giá nội dung:</strong> Nhấp xem chi tiết từng dòng kinh nghiệm. Kiểm tra phần <code>error_pattern</code> (lỗi static check cũ) và <code>fix_pattern</code> (mã nguồn sửa đổi của Dev Agent).
+                    </div>
+                </div>
+
+                <div class="step-block">
+                    <div class="step-num">3</div>
+                    <div>
+                        <strong>Quyết định phê duyệt:</strong> Nhấn nút <strong>"Approve"</strong> để hệ thống nạp kinh nghiệm này vào tệp cơ sở dữ liệu SQLite chung giúp tối ưu hóa độ chính xác của agent cho các phiên sinh code tiếp theo, hoặc nhấn nút <strong>"Reject"</strong> để hủy bỏ nếu code sửa đổi không tối ưu hoặc vi phạm tiêu chuẩn coding.
+                    </div>
+                </div>
+
+                <div class="warning-callout">
+                    <strong>Cảnh báo bảo mật:</strong> Chỉ phê duyệt các kinh nghiệm có phần code sửa đổi sạch, tường minh. Tránh phê duyệt các sửa đổi chứa mã độc hoặc import các thư viện không an toàn từ bên ngoài.
+                </div>
+            </section>
+
+            <!-- Section 3: Checkpoints -->
+            <section id="checkpoints" class="section-card">
+                <h2>
+                    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    3. Phê duyệt Checkpoints tác vụ nhạy cảm
+                </h2>
+                <p>
+                    Đối với các tác vụ mang tính nhạy cảm như ghi đè tệp tin cốt lõi, chạy các tập lệnh thực thi shell trên server hoặc chuẩn bị merge mã nguồn vào nhánh chính (Main branch), hệ thống LangGraph sẽ tự động kích hoạt chốt chặn **Checkpoint Interceptor**, tạm dừng tiến trình và gửi thông báo chờ phê duyệt.
+                </p>
+
+                <h3>Cách thức xử lý Checkpoints:</h3>
+                <ul>
+                    <li>Khi một dự án chuyển sang trạng thái <strong>"Waiting for Approval"</strong> (màu vàng nhấp nháy trên Dashboard), nhấp vào dự án đó để xem tiến trình chi tiết.</li>
+                    <li>Kiểm tra phần ghi nhật ký hành động (Action Logs) để biết chính xác Agent nào đang yêu cầu thực hiện hành động gì và tác động tiềm ẩn đến dự án.</li>
+                    <li>Sử dụng API <code>POST /api/checkpoints/{id}/approve</code> (hoặc nhấn nút tương ứng trên UI) để phê duyệt cho Agent tiếp tục chạy, hoặc từ chối để hủy tiến trình và quay về checkpoint an toàn trước đó.</li>
+                </ul>
+            </section>
+
+            <!-- Section 4: Models Registry -->
+            <section id="models" class="section-card">
+                <h2>
+                    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.43l-1.003.828c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.43l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    4. Đăng ký & Cấu hình mô hình ngôn ngữ lớn (LLM Setup)
+                </h2>
+                <p>
+                    Hệ thống hỗ trợ cơ chế thay đổi động cấu hình LLM trực tiếp tại thời điểm chạy mà không cần khởi động lại Server API.
+                </p>
+                
+                <h3>Các thao tác quản lý LLM:</h3>
+                <ul>
+                    <li><strong>Xem danh sách nhà cung cấp:</strong> Vào mục <strong>"AI Models"</strong> để hiển thị danh sách các LLM Providers đang khả dụng (như OpenRouter, OpenAI, Gemini).</li>
+                    <li><strong>Thay đổi LLM Provider chính:</strong> Gửi yêu cầu <code>POST /api/providers/{name}/use</code> để kích hoạt nhà cung cấp mong muốn. Dashboard sẽ tự động đồng bộ và nạp cấu hình mới.</li>
+                    <li><strong>Kiểm soát ngân sách token:</strong> Theo dõi kỹ biểu đồ phân bổ chi phí tokens tại trang chủ Dashboard. Nếu chi phí vượt định mức cho phép của dự án, hãy cấu hình chuyển đổi sang sử dụng các mô hình gọn nhẹ hơn như <code>gpt-4o-mini</code> hoặc <code>gemini-1.5-flash</code>.</li>
+                </ul>
+            </section>
+
+            <!-- Section 5: Workspace Export -->
+            <section id="workspace" class="section-card">
+                <h2>
+                    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 13.5l3 3m0 0l3-3m-3 3v-6m10.125-3V17.25c0 .966-.784 1.75-1.75 1.75H5.25A1.75 1.75 0 013.5 17.25V6.75C3.5 5.784 4.284 5 5.25 5h4.875c.966 0 1.75.784 1.75 1.75v1.5c0 .966.784 1.75 1.75 1.75h5.25c.966 0 1.75.784 1.75 1.75z"></path>
+                    </svg>
+                    5. Quản lý Workspace & Tải mã nguồn ZIP
+                </h2>
+                <p>
+                    Khi một pipeline chế tạo ứng dụng di động báo trạng thái hoàn thành thành công (PASS toàn bộ 12 phases), hệ thống sẽ cô lập mã nguồn sạch cuối cùng nằm tại thư mục <code>workspace/</code> của dự án tương ứng.
+                </p>
+
+                <h3>Các bước xuất bản mã nguồn:</h3>
+                <div class="step-block">
+                    <div class="step-num">1</div>
+                    <div>
+                        <strong>Xác minh biên dịch sạch:</strong> Kiểm tra xem vòng lặp vá lỗi (Repair Loop) đã báo PASS hoàn toàn đối với lỗi Dart tĩnh chưa.
+                    </div>
+                </div>
+                <div class="step-block">
+                    <div class="step-num">2</div>
+                    <div>
+                        <strong>Tải mã nguồn ZIP:</strong> Nhấp vào dự án trên Dashboard và chọn nút <strong>"Export source code"</strong>. Thao tác này kích hoạt API <code>GET /api/jobs/{slug}/download</code> để nén toàn bộ mã nguồn sạch của ứng dụng di động Flutter và companion REST API backend thành tệp tin ZIP tải về ngay lập tức.
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        function activateNav(element) {
+            // Remove active from all nav items
+            const items = document.querySelectorAll('.nav-item');
+            items.forEach(item => item.classList.remove('active'));
+            
+            // Add active to clicked item
+            element.classList.add('active');
+        }
+    </script>
+</body>
+</html>

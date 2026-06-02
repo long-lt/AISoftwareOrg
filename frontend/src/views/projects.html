@@ -1,0 +1,165 @@
+<!-- Top KPI cards -->
+<section class="grid-kpis-mini" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
+  <div class="kpi-card-mini blue" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Active Projects</div>
+      <div style="font-size: 24px; font-weight: 800; margin-top: 4px;" id="projects-kpi-active">0</div>
+    </div>
+    <div style="font-size: 20px;">📁</div>
+  </div>
+  <div class="kpi-card-mini purple" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">In Discovery</div>
+      <div style="font-size: 24px; font-weight: 800; margin-top: 4px;" id="projects-kpi-discovery">0</div>
+    </div>
+    <div style="font-size: 20px;">🔍</div>
+  </div>
+  <div class="kpi-card-mini amber" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">In Development</div>
+      <div style="font-size: 24px; font-weight: 800; margin-top: 4px;" id="projects-kpi-development">0</div>
+    </div>
+    <div style="font-size: 20px;">⚙️</div>
+  </div>
+  <div class="kpi-card-mini green" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">In Production</div>
+      <div style="font-size: 24px; font-weight: 800; margin-top: 4px;" id="projects-kpi-production">0</div>
+    </div>
+    <div style="font-size: 20px;">🚀</div>
+  </div>
+  <div class="kpi-card-mini rose" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Blocked</div>
+      <div style="font-size: 24px; font-weight: 800; margin-top: 4px; color: var(--accent-rose);" id="projects-kpi-blocked">0</div>
+    </div>
+    <div style="font-size: 20px;">⚠️</div>
+  </div>
+</section>
+
+<!-- Action Header Bar -->
+<div class="projects-action-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; gap:16px; flex-wrap:wrap;">
+  <div style="display:flex; gap:10px; flex:1; max-width:600px;">
+    <input type="text" id="project-search" placeholder="Search projects by name, description or language..." 
+           style="flex:1; padding: 10px 14px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); outline: none;">
+    <select id="project-filter-status" style="padding: 10px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); outline: none;">
+      <option value="">All Statuses</option>
+      <option value="Production">Production</option>
+      <option value="Development">Development</option>
+      <option value="Staging">Staging</option>
+      <option value="Discovery">Discovery</option>
+    </select>
+  </div>
+  <div style="display:flex; gap:10px;">
+    <button class="btn btn-secondary" id="projects-import-repo" style="padding: 10px 16px; font-size:13px; font-weight:700;">📥 Import Repo</button>
+    <button class="btn" id="projects-create-wizard" style="padding: 10px 20px; font-size:13px; font-weight:700;">➕ New Project</button>
+  </div>
+</div>
+
+<div class="section-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+  <!-- Left Side: Enterprise Project Grid -->
+  <div>
+
+    <!-- New Initiative Form -->
+    <div class="card-panel" style="margin-bottom: 24px;">
+      <div class="card-panel-header">
+        <h2>🆕 Tạo Enterprise Initiative mới</h2>
+      </div>
+      <form id="initiative-form" style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Tên Initiative</label>
+          <input name="name" placeholder="Ví dụ: HR Chatbot, Sales Dashboard" required>
+        </div>
+        <div class="form-group">
+          <label>Icon (Emoji)</label>
+          <input name="icon" value="🤖" maxlength="2">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select name="status">
+            <option value="discovery">Discovery</option>
+            <option value="development">Development</option>
+            <option value="production">Production</option>
+            <option value="blocked">Blocked</option>
+          </select>
+        </div>
+        <div class="form-group" style="grid-column: span 2;">
+          <label>Mô tả</label>
+          <textarea name="description" rows="2" placeholder="Mô tả ngắn về mục tiêu initiative"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Repository URL</label>
+          <input name="repository" placeholder="github.com/owner/repo">
+        </div>
+        <div class="form-group">
+          <label>SLA Target (%)</label>
+          <input name="sla" value="99.9">
+        </div>
+        <button class="btn" type="submit" style="grid-column: span 2;">➕ Tạo Initiative</button>
+      </form>
+    </div>
+    <div class="card-panel-header" style="margin-bottom:12px;">
+      <h2>📁 Enterprise Initiative Portfolio</h2>
+    </div>
+    
+    <div class="project-cards-grid" id="enterprise-projects-grid" style="display:grid; grid-template-columns:1fr; gap:16px;">
+      <p style="color:var(--text-secondary); padding:20px; text-align:center;">Đang tải danh sách dự án doanh nghiệp...</p>
+    </div>
+  </div>
+
+  <!-- Right Side: Flutter MVP builder & Jobs List -->
+  <div style="display:flex; flex-direction:column; gap:24px;">
+    <!-- Flutter MVP Form Card -->
+    <div class="card-panel">
+      <div class="card-panel-header">
+        <h2>🆕 Chế tạo Flutter MVP mới</h2>
+      </div>
+      <form id="job-form">
+        <div class="form-group">
+          <label>Tên ứng dụng (Name)</label>
+          <input name="name" value="Todo App" placeholder="Ví dụ: Music Player, Todo App" required>
+        </div>
+        <div class="form-group">
+          <label>Slug (Mã định danh tiếng Anh)</label>
+          <input name="slug" placeholder="Ví dụ: todo_app">
+        </div>
+        <div class="form-group">
+          <label>Mô tả yêu cầu ứng dụng</label>
+          <textarea name="description" rows="3" required>Ứng dụng Todo Task Manager có danh sách công việc, thêm/sửa/xoá công việc, và màn hình thống kê Dashboard</textarea>
+        </div>
+        <div class="form-group">
+          <label>Các tính năng chính (features)</label>
+          <input name="features" value="todo, dashboard, stats" placeholder="features, commas separated">
+        </div>
+        <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div>
+            <label>Style UI</label>
+            <select name="style">
+              <option value="modern">Modern (Dark Theme)</option>
+              <option value="minimalist">Minimalist</option>
+              <option value="material3">Google Material 3</option>
+            </select>
+          </div>
+          <div>
+            <label>API Backend</label>
+            <select name="backend">
+              <option value="none">Không có (Local Storage)</option>
+              <option value="fastapi">FastAPI REST Client</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn" type="submit" style="margin-top: 10px; width: 100%;">🚀 Bắt đầu chế tạo</button>
+      </form>
+    </div>
+
+    <!-- Active Mobile Jobs list -->
+    <div class="card-panel">
+      <div class="card-panel-header">
+        <h2>📊 Danh sách Apps sinh ra</h2>
+      </div>
+      <div id="jobs-list" style="max-height: 480px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px;">
+        Đang tải...
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,110 @@
+<!-- Top KPI Cards -->
+<section class="grid-kpis-mini" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
+  <div class="kpi-card-mini blue" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Total Pipelines</div>
+      <div style="font-size: 24px; font-weight: 800; margin-top: 4px;" id="pipe-kpi-total">0</div>
+    </div>
+    <div style="font-size: 20px;">⚙️</div>
+  </div>
+  <div class="kpi-card-mini yellow" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Running</div>
+      <div style="font-size: 24px; font-weight: 800; margin-top: 4px; color: var(--accent-amber);" id="pipe-kpi-running">0</div>
+    </div>
+    <div style="font-size: 20px; color: var(--accent-amber);">●</div>
+  </div>
+  <div class="kpi-card-mini green" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Successful Today</div>
+      <div style="font-size: 24px; font-weight: 800; margin-top: 4px; color: var(--accent-green);" id="pipe-kpi-success">0</div>
+    </div>
+    <div style="font-size: 20px; color: var(--accent-green);">✓</div>
+  </div>
+  <div class="kpi-card-mini rose" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Failed Today</div>
+      <div style="font-size: 24px; font-weight: 800; margin-top: 4px; color: var(--accent-rose);" id="pipe-kpi-failed">0</div>
+    </div>
+    <div style="font-size: 20px; color: var(--accent-rose);">✗</div>
+  </div>
+  <div class="kpi-card-mini blue" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Avg Duration</div>
+      <div style="font-size: 24px; font-weight: 800; margin-top: 4px;" id="pipe-kpi-duration">0m 0s</div>
+    </div>
+    <div style="font-size: 20px;">⏱️</div>
+  </div>
+</section>
+
+<!-- CI/CD Pipelines Directory -->
+<div class="card-panel" style="margin-bottom: 24px;">
+  <div class="card-panel-header">
+    <h2>🚀 Active CI/CD & AI Delivery Pipelines</h2>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Pipeline Run ID</th>
+        <th>Linked Initiative</th>
+        <th>Trigger Source</th>
+        <th>Current Active Stage</th>
+        <th>Runtime Status</th>
+        <th>Avg Duration</th>
+        <th>Success Rate</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="pipelines-table-body">
+      <tr>
+        <td colspan="8" style="text-align:center; color:var(--text-muted); padding:20px;">Đang nạp danh sách delivery pipelines...</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- JWT Token Config -->
+<div class="card-panel" style="margin-bottom: 24px; padding: 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+  <label for="team-token" style="font-size: 13px; color: var(--text-secondary); font-weight: 700;">JWT AUTHORIZATION TOKEN:</label>
+  <input id="team-token" type="text" placeholder="Nhập JWT token cho team (nếu có)"
+         style="flex: 1; max-width: 400px; padding: 8px 12px; background: var(--bg-secondary); border: 1px solid var(--border-color);
+                border-radius: 4px; color: var(--text-primary); font-size: 13px; outline: none;">
+  <button id="btn-save-token" class="btn" style="padding: 8px 16px; font-size: 13px; font-weight: 700;">Lưu Token</button>
+  <span id="token-status" style="font-size: 12px; color: var(--accent-green); font-weight:bold;"></span>
+</div>
+
+<!-- Grid Triplet: Tasks, Experience Queue, Checkpoints -->
+<div class="grid-thirds" style="margin-bottom: 24px;">
+  <div class="card-panel">
+    <h2>🏢 Tổng hợp Tác vụ General Dev</h2>
+    <div id="task-summary" style="margin-top: 10px;">Đang tải...</div>
+  </div>
+  <div class="card-panel">
+    <h2>🧠 Experience Queue (Tự học hỏi)</h2>
+    <div id="experience-queue" style="margin-top: 10px;">Đang tải...</div>
+  </div>
+  <div class="card-panel">
+    <h2>⏳ Checkpoints chờ duyệt</h2>
+    <div id="pending-checkpoints" style="margin-top: 10px;">Đang tải...</div>
+  </div>
+</div>
+
+<!-- RBAC & Pulse -->
+<div class="grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+  <div class="card-panel">
+    <h2>🛡️ Vi phạm phân quyền (RBAC)</h2>
+    <div id="permission-violations" style="margin-top: 10px;">Đang tải...</div>
+  </div>
+  <div class="card-panel">
+    <h2>System Pulse logs & state</h2>
+    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+      Last Update: <span id="last-update" style="font-weight: bold; color: var(--accent-cyan);">-</span>
+    </div>
+  </div>
+</div>
+
+<!-- Full width Agent activity -->
+<div class="card-panel card-full">
+  <h2>📋 Nhật ký Hoạt động các Agents</h2>
+  <div id="agent-activity" style="margin-top: 10px;">Đang tải...</div>
+</div>

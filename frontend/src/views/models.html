@@ -1,0 +1,85 @@
+<div class="section-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom:24px;">
+  <!-- LLM Providers Config -->
+  <div class="card-panel">
+    <div class="card-panel-header">
+      <h2>⚙️ Cấu hình LLM Providers</h2>
+      <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 11px; font-weight:700;" id="models-compare-btn">Compare Models</button>
+    </div>
+    <div style="margin: 20px 0;">
+      <label style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-secondary);">Active Provider</label>
+      <select id="active-provider-select" style="margin-top: 8px; width: 100%; padding: 10px; background:var(--bg-secondary); border:1px solid var(--border-color); color:#fff; border-radius:4px; outline:none; cursor:pointer;">
+        <option value="">(Loading...)</option>
+      </select>
+    </div>
+
+    <!-- Provider Key & Endpoint input form -->
+    <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px; margin-bottom: 20px;">
+      <h3 style="font-size:12px; font-weight:700; color:#fff; text-transform:uppercase; margin-bottom:10px;">🔑 Cấu hình Provider Key & Endpoint</h3>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+          <div class="form-group" style="margin:0;">
+            <label style="font-size:10px; text-transform:uppercase; color:var(--text-secondary); display:block; margin-bottom:4px;">API Key</label>
+            <input type="password" id="provider-config-key" placeholder="Nhập API Key..." style="width:100%; padding:8px 10px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:#fff; font-size:12px; outline:none;">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label style="font-size:10px; text-transform:uppercase; color:var(--text-secondary); display:block; margin-bottom:4px;">Base URL (Optional)</label>
+            <input type="text" id="provider-config-baseurl" placeholder="Mặc định..." style="width:100%; padding:8px 10px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:#fff; font-size:12px; outline:none;">
+          </div>
+        </div>
+        <button class="btn" id="btn-save-provider-config" style="padding: 6px 12px; font-size: 11px; font-weight: 700; width:100%;">💾 Lưu cấu hình Provider</button>
+      </div>
+    </div>
+    <table id="providers-table" class="table-models">
+      <thead>
+        <tr>
+          <th>Provider</th>
+          <th>Default Model</th>
+          <th>API Base</th>
+          <th>Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="4">Đang tải...</td></tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Token Cost Summary -->
+  <div class="card-panel">
+    <h2>💰 Chi tiết chi phí Token và cuộc gọi API</h2>
+    <div id="costs-summary" style="margin-top: 15px;">Đang tải...</div>
+  </div>
+</div>
+
+<!-- Real-time Models Registry from Active Provider -->
+<div class="card-panel" style="margin-bottom:24px;">
+  <div class="card-panel-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+    <div>
+      <h2>🧠 Active LLM Registry (Real-time Models from Provider)</h2>
+      <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">Danh sách các model thật sự được nạp trực tiếp qua kết nối API từ Provider đang hoạt động.</p>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <input type="text" id="models-search" placeholder="Search models by name or ID..." 
+             style="padding: 6px 12px; font-size:12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary); outline: none; width: 220px;">
+      <span class="badge badge-success" id="models-count-badge">0 Models</span>
+    </div>
+  </div>
+  
+  <div style="max-height: 480px; overflow-y: auto; margin-top:15px; border:1px solid var(--border-color); border-radius:6px;">
+    <table id="real-models-table">
+      <thead>
+        <tr>
+          <th>Model Name / ID</th>
+          <th>Context Window</th>
+          <th>Input Cost / 1M tkns</th>
+          <th>Output Cost / 1M tkns</th>
+          <th>Description & Modality</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-secondary);">Đang nạp danh sách model thật từ kết nối API...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,146 @@
+<!-- Breadcrumbs & Actions Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:16px;">
+  <div>
+    <div style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+      <a id="agent-detail-back" style="color:var(--text-secondary); text-decoration:none; cursor:pointer;">AI Agents</a>
+      <span>/</span>
+      <span style="color:var(--text-muted);" id="agent-detail-breadcrumb">Code Writer Agent</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <h2 style="font-size:22px; font-weight:800; color:#fff; margin:0;" id="agent-detail-name">Code Writer Agent</h2>
+      <span class="badge badge-success" id="agent-detail-status">ACTIVE</span>
+    </div>
+  </div>
+  
+  <div style="display:flex; gap:10px;">
+    <button class="btn btn-secondary" style="padding:8px 14px; font-size:12px; font-weight:700;">Edit Tools</button>
+    <button class="btn btn-secondary" style="padding:8px 14px; font-size:12px; font-weight:700;" id="agent-pause-btn">Pause Agent</button>
+    <button class="btn" style="padding:8px 16px; font-size:12px; font-weight:700;">Assign Task</button>
+  </div>
+</div>
+
+<!-- Top Metrics Row -->
+<section class="grid-kpis-mini" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
+  <div class="kpi-card-mini green" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Success Rate</div>
+      <div style="font-size: 22px; font-weight: 800; margin-top: 4px; color:var(--accent-green);" id="agent-detail-kpi-success-rate">0%</div>
+    </div>
+    <div style="font-size: 18px;">📈</div>
+  </div>
+  <div class="kpi-card-mini blue" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Tasks Completed</div>
+      <div style="font-size: 22px; font-weight: 800; margin-top: 4px;" id="agent-detail-kpi-tasks-completed">0</div>
+    </div>
+    <div style="font-size: 18px;">✓</div>
+  </div>
+  <div class="kpi-card-mini yellow" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Current Tasks</div>
+      <div style="font-size: 22px; font-weight: 800; margin-top: 4px; color:var(--accent-amber);" id="agent-detail-kpi-current-tasks">0</div>
+    </div>
+    <div style="font-size: 18px;">⏳</div>
+  </div>
+  <div class="kpi-card-mini purple" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Cost Today</div>
+      <div style="font-size: 22px; font-weight: 800; margin-top: 4px; color:var(--accent-purple);" id="agent-detail-kpi-cost">$0.00</div>
+    </div>
+    <div style="font-size: 18px;">💰</div>
+  </div>
+  <div class="kpi-card-mini blue" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Avg Duration</div>
+      <div style="font-size: 22px; font-weight: 800; margin-top: 4px;" id="agent-detail-kpi-duration">0m 0s</div>
+    </div>
+    <div style="font-size: 18px;">⏱️</div>
+  </div>
+</section>
+
+<!-- Split Main Grid -->
+<div style="display:grid; grid-template-columns: 2fr 1fr; gap:24px; flex-wrap:wrap;">
+  <!-- Left Side: Current Task & Queue -->
+  <div style="display:flex; flex-direction:column; gap:24px;">
+    
+    <!-- Current Task Block -->
+    <div class="card-panel" style="border-color:rgba(59,130,246,0.25); box-shadow: 0 0 15px rgba(59,130,246,0.02);">
+      <div class="card-panel-header" style="margin-bottom:12px;">
+        <h2>🔥 Active High-Priority Task Execution</h2>
+        <span class="badge badge-running" style="animation: pulse 1s infinite;">Executing</span>
+      </div>
+      
+      <div style="padding:15px; background:rgba(255,255,255,0.01); border:1px solid var(--border-color); border-radius:6px;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+          <h3 style="font-size:15px; font-weight:700; color:#fff;" id="agent-active-task-name">Standby</h3>
+          <span style="font-size:11px; font-family:monospace; color:var(--text-secondary);" id="agent-active-task-project">-</span>
+        </div>
+        <p style="font-size:12px; color:var(--text-secondary); line-height:1.5; margin-bottom:16px;" id="agent-active-task-desc">No active high-priority task assigned at the moment.</p>
+        
+        <!-- Progress bar -->
+        <div style="margin-bottom:16px;">
+          <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:4px; font-weight:700;">
+            <span style="color:var(--text-secondary);" id="agent-active-task-step">WAITING</span>
+            <span style="color:#fff;" id="agent-active-task-pct">0%</span>
+          </div>
+          <div class="progress-track" style="height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">
+            <div id="agent-active-task-fill" style="height:100%; width:0%; background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));"></div>
+          </div>
+        </div>
+        
+        <!-- Interactive logs preview -->
+        <div style="background:#04060a; border:1px solid var(--border-color); border-radius:6px; padding:10px 14px; font-family:monospace; font-size:11px; color:#c0caf5; line-height:1.5;">
+          <div style="color:var(--text-secondary);" id="agent-active-log">Standing by for next system trigger...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task Queue Table -->
+    <div class="card-panel">
+      <div class="card-panel-header">
+        <h2>⏳ Assigned Task Queue</h2>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Task Ticket</th>
+            <th>Initiative Project</th>
+            <th>Priority</th>
+            <th>Queue Status</th>
+            <th>Assigned By</th>
+          </tr>
+        </thead>
+        <tbody id="agent-task-queue-body">
+          <tr>
+            <td colspan="5" style="text-align:center; color:var(--text-secondary); padding:20px;">Không có tác vụ nào trong hàng đợi.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+ 
+  <!-- Right Side: Tool Permissions & Memory Block -->
+  <div style="display:flex; flex-direction:column; gap:24px;">
+    
+    <!-- Tool Permissions -->
+    <div class="card-panel" style="padding:16px;">
+      <h3 style="font-size:12px; font-weight:700; color:#fff; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">GRANTS & TOOLS PERMISSIONS</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;" id="agent-detail-grants">
+        <div style="display:flex; align-items:center; gap:6px; font-size:12px;"><span style="color:var(--accent-green);">✓</span> Read File</div>
+        <div style="display:flex; align-items:center; gap:6px; font-size:12px;"><span style="color:var(--accent-green);">✓</span> Write File</div>
+        <div style="display:flex; align-items:center; gap:6px; font-size:12px;"><span style="color:var(--accent-green);">✓</span> Exec Shell</div>
+        <div style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-muted);"><span>✗</span> Write DB</div>
+      </div>
+    </div>
+
+    <!-- Agent Memory Panel -->
+    <div class="card-panel" style="padding:16px;">
+      <h3 style="font-size:12px; font-weight:700; color:#fff; margin-bottom:12px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">AGENT SYSTEM PROMPT & KNOWLEDGE</h3>
+      <div style="display:flex; flex-direction:column; gap:12px; font-size:11.5px; line-height:1.5;" id="agent-detail-prompt-memory">
+        <div style="color:var(--text-secondary); font-style:italic;">Chưa được cấu hình prompt hệ thống.</div>
+      </div>
+    </div>
+
+  </div>
+</div>

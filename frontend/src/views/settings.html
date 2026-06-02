@@ -1,0 +1,89 @@
+<div class="section-grid" style="display:grid; grid-template-columns: 200px 1fr; gap:24px;">
+  
+  <!-- Left Side: Settings Tabs Navigation -->
+  <div style="display:flex; flex-direction:column; gap:4px;" id="settings-submenu">
+    <button class="btn btn-secondary tab-btn active" data-set-tab="general" style="text-align:left; padding:10px 14px; font-size:13px; font-weight:700; width:100%; border:none; background:none; color:#fff; border-radius:var(--radius-sm); cursor:pointer;">General Settings</button>
+    <button class="btn btn-secondary tab-btn" data-set-tab="ai" style="text-align:left; padding:10px 14px; font-size:13px; font-weight:600; width:100%; border:none; background:none; color:var(--text-secondary); border-radius:var(--radius-sm); cursor:pointer;">AI Defaults & LLMs</button>
+    <button class="btn btn-secondary tab-btn" data-set-tab="security" style="text-align:left; padding:10px 14px; font-size:13px; font-weight:600; width:100%; border:none; background:none; color:var(--text-secondary); border-radius:var(--radius-sm); cursor:pointer;">Security & API Keys</button>
+  </div>
+
+  <!-- Right Side: Settings Content Panels -->
+  <div>
+    <!-- Panel 1: General Settings -->
+    <div class="card-panel settings-panel-section active" id="settings-section-general">
+      <h2>🛠️ Cấu hình Tác vụ & General Settings</h2>
+      <div style="margin-top: 20px; display:flex; flex-direction:column; gap:16px;">
+        <div class="form-group">
+          <label>Tên Workspace (Workspace Name)</label>
+          <input type="text" id="set-workspace-name" value="AI Software Factory Workspace" style="width:100%; padding:10px 14px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-primary); outline:none;">
+        </div>
+        <div class="form-group">
+          <label>Múi giờ (Timezone)</label>
+          <select id="set-timezone" style="width:100%; padding:10px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-primary); outline:none;">
+            <option value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh (GMT+7)</option>
+            <option value="UTC">Coordinated Universal Time (UTC)</option>
+          </select>
+        </div>
+        <button class="btn" style="width:100%;" id="btn-save-general">💾 Lưu cấu hình</button>
+      </div>
+    </div>
+
+    <!-- Panel 2: AI Defaults & LLMs -->
+    <div class="card-panel settings-panel-section" id="settings-section-ai" style="display:none;">
+      <h2>🧠 Cấu hình AI Defaults & Model Providers</h2>
+      <div style="margin-top: 20px; display:flex; flex-direction:column; gap:16px;">
+        <div class="form-group">
+          <label>Hạn mức Tokens tối đa cho mỗi Task</label>
+          <input type="number" id="set-max-tokens" value="1000000" style="width:100%; padding:10px 14px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-primary); outline:none;">
+        </div>
+        <div class="form-group">
+          <label>Hạn mức chi tiêu hàng ngày (Daily Cost Limit - USD)</label>
+          <input type="number" step="0.01" id="set-daily-cost-limit" value="5.00" style="width:100%; padding:10px 14px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-primary); outline:none;">
+        </div>
+        <div class="form-group">
+          <label>Mô hình thông minh dự phòng khi repair loop thất bại (Smart Fallback Model)</label>
+          <input type="text" id="set-smart-model-fallback" value="anthropic/claude-3.5-sonnet" style="width:100%; padding:10px 14px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-primary); outline:none;">
+        </div>
+        <div class="form-group">
+          <label>Số lần sửa mã tối đa của QA/Repair loop (Max Repair Attempts)</label>
+          <input type="number" id="set-max-repair-attempts" value="5" style="width:100%; padding:10px 14px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:var(--radius-sm); color:var(--text-primary); outline:none;">
+        </div>
+        <div class="form-group" style="display:flex; flex-direction:row; align-items:center; gap:12px; margin-top:10px;">
+          <input type="checkbox" id="human-approval" checked style="width:20px; height:20px; cursor:pointer;">
+          <label for="human-approval" style="cursor:pointer; font-size:13px; text-transform:none; color:var(--text-primary);">Yêu cầu phê duyệt thủ công (Human-in-the-loop) trước khi triển khai sản phẩm</label>
+        </div>
+        <button class="btn" style="width:100%;" id="btn-save-ai">💾 Lưu cấu hình AI</button>
+      </div>
+    </div>
+
+    <!-- Panel 3: Security & Integrations -->
+    <div class="card-panel settings-panel-section" id="settings-section-security" style="display:none;">
+      <h2>🛡️ Bảo mật & Integrations kết nối</h2>
+      <div style="display:flex; flex-direction:column; gap:12px; font-size:13px; margin-top:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+          <span>GitHub Connector</span>
+          <span class="badge badge-success">Connected</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:8px;">
+          <span>Supabase Gateway</span>
+          <span class="badge badge-success">Connected</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Slack Webhook</span>
+          <span class="badge badge-success">Connected</span>
+        </div>
+      </div>
+
+      <!-- Danger Zone Card -->
+      <div style="margin-top: 30px; border: 1px solid var(--accent-rose); background: rgba(244, 63, 94, 0.03); padding: 20px; border-radius: 8px;">
+        <h3 style="color: var(--accent-rose); font-size: 15px; font-weight: 700; margin-bottom: 8px;">🔥 Danger Zone - Vùng Nguy Hiểm</h3>
+        <p style="color: var(--text-secondary); font-size: 12.5px; margin-bottom: 15px; text-transform: none; line-height: 1.5;">
+          Hành động này sẽ xóa sạch toàn bộ lịch sử các jobs sinh ứng dụng, cơ sở dữ liệu các sáng kiến portfolio, xóa trắng các tệp nguồn trong workspace và làm trống bộ nhớ tự học của Agent. Toàn bộ cài đặt sẽ được khôi phục về trạng thái khởi đầu sạch mặc định.
+        </p>
+        <button class="btn" id="btn-wipe-data" style="background: var(--accent-rose); color: #fff; border: 1px solid rgba(244, 63, 94, 0.2); width: 100%; font-weight: 700; cursor: pointer;">🔥 Xóa sạch dữ liệu & Reset hệ thống</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>

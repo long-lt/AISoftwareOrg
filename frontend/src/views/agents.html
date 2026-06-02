@@ -1,0 +1,236 @@
+<!-- Top KPI cards -->
+<div class="stat-row" style="display:flex; justify-content:space-between; margin-bottom:24px; background:var(--bg-card); padding:20px; border-radius:var(--radius); border:1px solid var(--border-color); flex-wrap:wrap; gap:16px;">
+  <div class="stat"><span class="stat-value" id="agents-kpi-active">0</span><div class="stat-label">Active Agents</div></div>
+  <div class="stat"><span class="stat-value" id="agents-kpi-running">0</span><div class="stat-label">Running Tasks</div></div>
+  <div class="stat"><span class="stat-value" id="agents-kpi-completed">0</span><div class="stat-label">Completed Today</div></div>
+  <div class="stat"><span class="stat-value" style="color:var(--accent-rose)" id="agents-kpi-failed">0</span><div class="stat-label">Failed Tasks</div></div>
+  <div class="stat"><span class="stat-value" id="agents-kpi-duration">0s</span><div class="stat-label">Avg Task Duration</div></div>
+</div>
+
+<!-- Lưới 6 AI Agents chuyên nghiệp -->
+<div class="grid-thirds" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:20px; margin-bottom:24px;">
+  
+  <!-- Agent 1: Product Planner Agent -->
+  <div class="card-panel" style="display:flex; flex-direction:column; justify-content:space-between; height:250px;" id="agent-card-planner">
+    <div>
+      <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
+        <h3 style="font-size:16px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;" class="agent-title-text">🕵️ Product Planner Agent</h3>
+        <span class="badge badge-success">Active</span>
+      </div>
+      <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; line-height:1.5;" class="agent-desc-text">Converts ideas, feature requests, and Figma mockups into detailed PRDs, system architectures, and development task plans.</p>
+    </div>
+    <div style="border-top:1px solid var(--border-color); padding-top:12px; font-size:12px; display:flex; flex-direction:column; gap:6px;">
+      <div><strong>Active LLM Model:</strong> <span style="color:var(--accent-cyan);" class="agent-model-text">google/gemini-2.5-flash</span></div>
+      <div><strong>Current Task:</strong> <span style="color:#fff;" class="agent-task-text">Idle</span></div>
+      <div style="display:flex; justify-content:space-between;">
+        <span><strong>Success Rate:</strong> <span style="color:var(--accent-green);" class="agent-success-rate">0%</span></span>
+        <span><strong>Cost Today:</strong> <span style="color:var(--accent-purple); font-weight:bold;" class="agent-cost-text">$0.00</span></span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+        <span style="font-size:10px; color:var(--text-muted); font-family:monospace;" class="agent-tools-text">TOOLS: Figma, Linear, Hub</span>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-secondary btn-edit-agent" data-agent-id="planner" style="padding:4px 8px; font-size:11px; font-weight:700;">Edit Config</button>
+          <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px; font-weight:700; cursor:default;">Idle</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent 2: Code Writer Agent -->
+  <div class="card-panel" style="display:flex; flex-direction:column; justify-content:space-between; height:250px; border-color:rgba(59,130,246,0.3); box-shadow: 0 0 15px rgba(59,130,246,0.05);" id="agent-card-writer">
+    <div>
+      <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
+        <h3 style="font-size:16px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;" class="agent-title-text">💻 Code Writer Agent</h3>
+        <span class="badge badge-success">Active</span>
+      </div>
+      <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; line-height:1.5;" class="agent-desc-text">Implements features, resolves bugs, and structures modular packages based on Linear tickets or requirements files.</p>
+    </div>
+    <div style="border-top:1px solid var(--border-color); padding-top:12px; font-size:12px; display:flex; flex-direction:column; gap:6px;">
+      <div><strong>Active LLM Model:</strong> <span style="color:var(--accent-cyan);" class="agent-model-text">qwen/qwen-2.5-coder-32b</span></div>
+      <div><strong>Current Task:</strong> <span style="color:#fff;" class="agent-task-text">Idle</span></div>
+      <div style="display:flex; justify-content:space-between;">
+        <span><strong>Success Rate:</strong> <span style="color:var(--accent-green);" class="agent-success-rate">0%</span></span>
+        <span><strong>Cost Today:</strong> <span style="color:var(--accent-purple); font-weight:bold;" class="agent-cost-text">$0.00</span></span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+        <span style="font-size:10px; color:var(--text-muted); font-family:monospace;" class="agent-tools-text">TOOLS: GitHub, Terminal, Sandbox</span>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-secondary btn-edit-agent" data-agent-id="writer" style="padding:4px 8px; font-size:11px; font-weight:700;">Edit Config</button>
+          <button class="btn" style="padding:4px 12px; font-size:11px; font-weight:700; background:var(--accent-blue);" id="btn-goto-writer-agent">View Profile</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent 3: QA Agent -->
+  <div class="card-panel" style="display:flex; flex-direction:column; justify-content:space-between; height:250px;" id="agent-card-qa">
+    <div>
+      <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
+        <h3 style="font-size:16px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;" class="agent-title-text">🔬 QA Agent</h3>
+        <span class="badge badge-success">Active</span>
+      </div>
+      <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; line-height:1.5;" class="agent-desc-text">Generates integration tests, writes unit assertions, and performs extensive smoke testing before merging pull requests.</p>
+    </div>
+    <div style="border-top:1px solid var(--border-color); padding-top:12px; font-size:12px; display:flex; flex-direction:column; gap:6px;">
+      <div><strong>Active LLM Model:</strong> <span style="color:var(--accent-cyan);" class="agent-model-text">meta-llama/llama-3.3-70b-instruct</span></div>
+      <div><strong>Current Task:</strong> <span style="color:#fff;" class="agent-task-text">Idle</span></div>
+      <div style="display:flex; justify-content:space-between;">
+        <span><strong>Success Rate:</strong> <span style="color:var(--accent-green);" class="agent-success-rate">0%</span></span>
+        <span><strong>Cost Today:</strong> <span style="color:var(--accent-purple); font-weight:bold;" class="agent-cost-text">$0.00</span></span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+        <span style="font-size:10px; color:var(--text-muted); font-family:monospace;" class="agent-tools-text">TOOLS: Browser, Terminal, Playwright</span>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-secondary btn-edit-agent" data-agent-id="qa" style="padding:4px 8px; font-size:11px; font-weight:700;">Edit Config</button>
+          <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px; font-weight:700; cursor:default;">Idle</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent 4: DevOps Agent -->
+  <div class="card-panel" style="display:flex; flex-direction:column; justify-content:space-between; height:250px;" id="agent-card-devops">
+    <div>
+      <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
+        <h3 style="font-size:16px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;" class="agent-title-text">🚀 DevOps Agent</h3>
+        <span class="badge badge-success">Active</span>
+      </div>
+      <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; line-height:1.5;" class="agent-desc-text">Manages Kubernetes clusters, deploys docker containers, configures CDN gateways, and automates rollbacks.</p>
+    </div>
+    <div style="border-top:1px solid var(--border-color); padding-top:12px; font-size:12px; display:flex; flex-direction:column; gap:6px;">
+      <div><strong>Active LLM Model:</strong> <span style="color:var(--accent-cyan);" class="agent-model-text">google/gemini-2.5-flash</span></div>
+      <div><strong>Current Task:</strong> <span style="color:#fff;" class="agent-task-text">Idle</span></div>
+      <div style="display:flex; justify-content:space-between;">
+        <span><strong>Success Rate:</strong> <span style="color:var(--accent-green);" class="agent-success-rate">0%</span></span>
+        <span><strong>Cost Today:</strong> <span style="color:var(--accent-purple); font-weight:bold;" class="agent-cost-text">$0.00</span></span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+        <span style="font-size:10px; color:var(--text-muted); font-family:monospace;" class="agent-tools-text">TOOLS: Cloudflare, AWS, Supabase</span>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-secondary btn-edit-agent" data-agent-id="devops" style="padding:4px 8px; font-size:11px; font-weight:700;">Edit Config</button>
+          <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px; font-weight:700; cursor:default;">Idle</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent 5: Cost Monitor Agent -->
+  <div class="card-panel" style="display:flex; flex-direction:column; justify-content:space-between; height:250px;" id="agent-card-cost">
+    <div>
+      <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
+        <h3 style="font-size:16px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;" class="agent-title-text">💰 Cost Monitor Agent</h3>
+        <span class="badge badge-success">Active</span>
+      </div>
+      <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; line-height:1.5;" class="agent-desc-text">Tracks API call volumes, alerts on billing spikes, detects anomalous LLM token usages, and suggest caching optimization policies.</p>
+    </div>
+    <div style="border-top:1px solid var(--border-color); padding-top:12px; font-size:12px; display:flex; flex-direction:column; gap:6px;">
+      <div><strong>Active LLM Model:</strong> <span style="color:var(--accent-cyan);" class="agent-model-text">qwen/qwen-2.5-coder-32b</span></div>
+      <div><strong>Current Task:</strong> <span style="color:#fff;" class="agent-task-text">Idle</span></div>
+      <div style="display:flex; justify-content:space-between;">
+        <span><strong>Success Rate:</strong> <span style="color:var(--accent-green);" class="agent-success-rate">0%</span></span>
+        <span><strong>Cost Today:</strong> <span style="color:var(--accent-purple); font-weight:bold;" class="agent-cost-text">$0.00</span></span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+        <span style="font-size:10px; color:var(--text-muted); font-family:monospace;" class="agent-tools-text">TOOLS: Stripe, AWS, OpenRouter</span>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-secondary btn-edit-agent" data-agent-id="cost" style="padding:4px 8px; font-size:11px; font-weight:700;">Edit Config</button>
+          <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px; font-weight:700; cursor:default;">Idle</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent 6: Security Reviewer Agent -->
+  <div class="card-panel" style="display:flex; flex-direction:column; justify-content:space-between; height:250px;" id="agent-card-security">
+    <div>
+      <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
+        <h3 style="font-size:16px; font-weight:700; color:var(--accent-rose); display:flex; align-items:center; gap:8px;" class="agent-title-text">🛡️ Security Reviewer</h3>
+        <span class="badge badge-running" style="background:rgba(245,158,11,0.15); color:var(--accent-amber);">Warning</span>
+      </div>
+      <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; line-height:1.5;" class="agent-desc-text">Audits code assets, scans third-party packages for vulnerabilities, inspects container networks, and sanitizes API keys.</p>
+    </div>
+    <div style="border-top:1px solid var(--border-color); padding-top:12px; font-size:12px; display:flex; flex-direction:column; gap:6px;">
+      <div><strong>Active LLM Model:</strong> <span style="color:var(--accent-cyan);" class="agent-model-text">deepseek/deepseek-chat</span></div>
+      <div><strong>Current Task:</strong> <span style="color:#fff;" class="agent-task-text">Idle</span></div>
+      <div style="display:flex; justify-content:space-between;">
+        <span><strong>Success Rate:</strong> <span style="color:var(--accent-green);" class="agent-success-rate">0%</span></span>
+        <span><strong>Cost Today:</strong> <span style="color:var(--accent-purple); font-weight:bold;" class="agent-cost-text">$0.00</span></span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px;">
+        <span style="font-size:10px; color:var(--text-muted); font-family:monospace;" class="agent-tools-text">TOOLS: Snyk, GitHub, Sandbox</span>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-secondary btn-edit-agent" data-agent-id="security" style="padding:4px 8px; font-size:11px; font-weight:700;">Edit Config</button>
+          <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px; font-weight:700; cursor:default;">Idle</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ==========================================================================
+     AI AGENT CONFIGURATION MODAL OVERLAY (Glassmorphism dark-theme popup)
+     ========================================================================== -->
+<div id="agent-config-modal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); z-index:100; align-items:center; justify-content:center; padding:20px;">
+  <div class="card-panel" style="max-width:560px; width:100%; padding:24px 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border-color:var(--border-glow);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+      <h3 style="font-size:18px; font-weight:800; color:#fff; margin:0;" id="modal-agent-title">⚙️ Cấu hình AI Worker Agent</h3>
+      <button id="modal-close-btn" style="background:none; border:none; color:var(--text-secondary); font-size:20px; cursor:pointer;">&times;</button>
+    </div>
+    
+    <form id="agent-config-form" style="display:flex; flex-direction:column; gap:16px;">
+      <input type="hidden" id="modal-field-id">
+      
+      <!-- Vai trò / Tên hiển thị -->
+      <div class="form-group">
+        <label>Tên Agent & Vai trò (Role)</label>
+        <input type="text" id="modal-field-title" required style="width:100%; padding:10px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:#fff; outline:none;">
+      </div>
+      
+      <!-- Mô tả Agent -->
+      <div class="form-group">
+        <label>Mô tả nhiệm vụ (Description)</label>
+        <textarea id="modal-field-desc" rows="2" required style="width:100%; padding:10px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:#fff; outline:none; font-size:13px; line-height:1.5;"></textarea>
+      </div>
+
+      <!-- Select Provider / Model -->
+      <div class="form-group">
+        <label style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">LLM Provider</label>
+        <select id="modal-field-provider" style="width:100%; padding:10px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:#fff; outline:none; cursor:pointer; font-size:13px; margin-top:6px;">
+          <option value="openrouter">OpenRouter</option>
+          <option value="openai">OpenAI</option>
+          <option value="gemini">Google Gemini</option>
+          <option value="deepseek">DeepSeek</option>
+          <option value="groq">Groq</option>
+          <option value="ollama">Ollama (Local)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label style="font-size:12px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Active LLM Model (Dropdown search nhanh)</label>
+        <input type="text" id="modal-field-model" list="modal-field-model-list" placeholder="Gõ hoặc chọn model từ danh sách..." required style="width:100%; padding:10px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:#fff; outline:none; font-size:13px; margin-top:6px;">
+        <datalist id="modal-field-model-list"></datalist>
+        <span style="font-size:10px; color:var(--text-muted); margin-top:4px; display:block;" id="modal-field-model-status">Sẵn sàng.</span>
+      </div>
+
+      <!-- Tool Permissions (Kỷ năng) -->
+      <div class="form-group">
+        <label>Công cụ được cấp quyền (Skills / Authorized Tools)</label>
+        <input type="text" id="modal-field-tools" placeholder="Ví dụ: GitHub, Terminal, Playwright, Stripe" style="width:100%; padding:10px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:#fff; outline:none;">
+        <span style="font-size:10px; color:var(--text-muted); margin-top:4px; display:block;">Nhập các công cụ ngăn cách bằng dấu phẩy.</span>
+      </div>
+
+      <!-- Agent Knowledge (Kiến thức nền) -->
+      <div class="form-group">
+        <label>Kiến thức chuyên sâu (Knowledge base rules)</label>
+        <textarea id="modal-field-knowledge" rows="2" placeholder="Ví dụ: Coding standards, Security checklists, API contracts..." style="width:100%; padding:10px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:#fff; outline:none; font-size:13px; line-height:1.5;"></textarea>
+      </div>
+
+      <!-- Form Buttons -->
+      <div style="display:flex; justify-content:space-end; gap:12px; margin-top:12px; border-top:1px solid var(--border-color); padding-top:16px;">
+        <button class="btn btn-secondary" id="modal-cancel-btn" type="button" style="padding:10px 20px; flex:1;">Hủy bỏ</button>
+        <button class="btn" type="submit" style="padding:10px 20px; flex:1;">💾 Lưu cấu hình</button>
+      </div>
+    </form>
+  </div>
+</div>

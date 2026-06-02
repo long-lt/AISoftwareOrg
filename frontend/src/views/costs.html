@@ -1,0 +1,143 @@
+<!-- Top KPI Metrics -->
+<div class="stat-row" style="display:flex; justify-content:space-between; margin-bottom:24px; background:var(--bg-card); padding:20px; border-radius:var(--radius); border:1px solid var(--border-color); flex-wrap:wrap; gap:16px;">
+  <div class="stat"><span class="stat-value" id="costs-total-month">$0.00</span><div class="stat-label">Total Cost This Month</div></div>
+  <div class="stat"><span class="stat-value" id="costs-ai-token-spend">$0.00</span><div class="stat-label">AI Token Spend</div></div>
+  <div class="stat"><span class="stat-value" id="costs-cloud-infra">$0.00</span><div class="stat-label">Cloud Infra</div></div>
+  <div class="stat"><span class="stat-value" id="costs-storage-spend">$0.00</span><div class="stat-label">Storage Spend</div></div>
+  <div class="stat"><span class="stat-value" id="costs-savings" style="color:var(--accent-green)">$0.00</span><div class="stat-label">Savings Opportunity</div></div>
+</div>
+
+<!-- Main Split: Daily Cost Trend SVG + Cost by Project Donut -->
+<div class="section-grid" style="display:grid; grid-template-columns: 2fr 1fr; gap:24px; margin-bottom:24px;">
+
+  <!-- Daily Budget Bar -->
+  <div class="card-panel" style="grid-column: span 2; margin-bottom: 0;">
+    <div class="card-panel-header" style="margin-bottom:12px;">
+      <h2>💰 Daily Cost Budget (Cost Guard)</h2>
+      <span style="font-size:11px; color:var(--text-muted);">Real-time cap từ Settings → System</span>
+    </div>
+    <div id="costs-budget-bar" style="display:none;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+        <span>Hôm nay: <strong id="costs-today-spend">$0.0000</strong></span>
+        <span style="color:var(--text-muted);">Giới hạn: <strong id="costs-daily-limit">$5.00</strong></span>
+      </div>
+      <div style="height:24px; background:rgba(255,255,255,0.05); border-radius:12px; overflow:hidden; position:relative;">
+        <div id="costs-budget-fill" style="height:100%; width:0%; background:var(--accent-green); transition:width 0.4s ease, background 0.4s ease;"></div>
+      </div>
+      <p id="costs-budget-warning" style="margin-top:8px; font-size:12px; color:var(--text-muted);"></p>
+    </div>
+    <p id="costs-budget-empty" style="font-size:12px; color:var(--text-muted);">Đang tải...</p>
+  </div>
+  
+  <!-- Daily Cost Trend -->
+  <div class="card-panel">
+    <div class="card-panel-header" style="margin-bottom:12px;">
+      <h2>📈 Daily Billing Trend (vs Last Month)</h2>
+      <span style="font-size:11px; color:var(--text-muted);">May 1 - May 30, 2026</span>
+    </div>
+    
+    <div style="height:220px; position:relative; width:100%; margin-top:20px; background:rgba(0,0,0,0.1); border-radius:6px; overflow:hidden;">
+      <svg viewBox="0 0 600 200" style="width:100%; height:100%; display:block;">
+        <line x1="0" y1="50" x2="600" y2="50" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        <line x1="0" y1="100" x2="600" y2="100" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        <line x1="0" y1="150" x2="600" y2="150" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        
+        <!-- Current Month (Purple) -->
+        <path d="M 0,180 Q 100,140 200,160 T 400,110 T 600,60" fill="none" stroke="var(--accent-purple)" stroke-width="3" stroke-linecap="round"/>
+        
+        <!-- Last Month (Muted) -->
+        <path d="M 0,180 Q 100,160 200,150 T 400,130 T 600,90" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-dasharray="4,4"/>
+      </svg>
+      <div style="position:absolute; bottom:10px; right:15px; display:flex; gap:12px; font-size:10px;">
+        <span style="color:var(--accent-purple); font-weight:700;">● May (Current Month)</span>
+        <span style="color:var(--text-muted); font-weight:700;">● April (Previous Month)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cost by Project Donut -->
+  <div class="card-panel" style="display:flex; flex-direction:column; justify-content:space-between;">
+    <div class="card-panel-header" style="margin-bottom:12px;">
+      <h2>📊 Cost by Project</h2>
+    </div>
+    
+    <div class="cost-box" style="display:flex; flex-direction:column; gap:15px; align-items:center; justify-content:center;">
+      <div class="donut-container" style="display:flex; justify-content:center;">
+        <div class="donut-chart" id="costs-view-donut" style="width:110px; height:110px; border-radius:50%; position:relative; background:conic-gradient(var(--accent-purple) 0% 100%); display:flex; align-items:center; justify-content:center;">
+          <div class="donut-center-text" style="width:78px; height:78px; background:var(--bg-secondary); border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+            <div class="donut-val" id="costs-view-donut-val" style="font-size:14px; font-weight:800; color:#fff;">$0.00</div>
+            <div class="donut-lbl" style="font-size:9px; color:var(--text-muted); text-transform:uppercase;">Total</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-legend" id="costs-view-legend" style="width:100%; display:flex; flex-direction:column; gap:6px; font-size:11px;">
+        <!-- Legend dynamically loaded -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 7-Day Cost Trend (real data) -->
+<div class="card-panel" style="margin-bottom: 24px;">
+  <div class="card-panel-header" style="margin-bottom:12px;">
+    <h2>📈 7-Day Cost Trend (LLM thật)</h2>
+    <span style="font-size:11px; color:var(--text-muted);">Tổng cost_usd theo ngày — 7 ngày gần nhất</span>
+  </div>
+  <div id="costs-7day-trend" style="display:flex; align-items:flex-end; gap:8px; height:180px; padding: 16px 0 0 0;">
+    <!-- Bars rendered by JS -->
+  </div>
+</div>
+
+<!-- Secondary Layout: Provider Spend & Budget alerts/suggestions -->
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px;">
+  
+  <!-- Left: Providers Spend table -->
+  <div class="card-panel">
+    <h2>🏢 Spendings by API Provider</h2>
+    <table style="margin-top:15px;">
+      <thead>
+        <tr>
+          <th>Provider</th>
+          <th>Monthly Spend</th>
+          <th>Usage Calls</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="costs-providers-table-body">
+        <tr>
+          <td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Đang tải danh sách nhà cung cấp...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Right: Alerts & Optimization -->
+  <div style="display:flex; flex-direction:column; gap:20px;">
+    <!-- Alerts -->
+    <div class="card-panel">
+      <h2>⚠️ Budget Efficiency Alerts</h2>
+      <div id="costs-alerts-list" style="display:flex; flex-direction:column; gap:10px; font-size:12.5px; margin-top:15px;">
+        <div style="background:rgba(245, 158, 11, 0.05); border:1px solid rgba(245, 158, 11, 0.2); padding:10px; border-radius:6px; color:#fef3c7;">
+          ⚠️ <strong>Data Platform:</strong> Daily usage reached 85% of standard daily alert thresholds.
+        </div>
+        <div style="background:rgba(244, 63, 94, 0.05); border:1px solid rgba(244, 63, 94, 0.2); padding:10px; border-radius:6px; color:#fee2e2;">
+          🚨 <strong>Marketing Content Gen:</strong> Token usage increased spikes of 32% over past 48 hours.
+        </div>
+      </div>
+    </div>
+
+    <!-- Optimization Suggestions -->
+    <div class="card-panel">
+      <h2>💡 Cost Optimization Suggestions</h2>
+      <div id="costs-suggestions-list" style="display:flex; flex-direction:column; gap:10px; font-size:12.5px; margin-top:15px;">
+        <div style="background:rgba(59, 130, 246, 0.05); border:1px solid rgba(59, 130, 246, 0.2); padding:10px; border-radius:6px; color:#dbeafe;">
+          💡 <strong>Prompt Caching:</strong> Caching repeated prompts on CS Agent will save up to $1,840/month.
+        </div>
+        <div style="background:rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.2); padding:10px; border-radius:6px; color:#d1fae5;">
+          💡 <strong>Model Downgrade:</strong> Routing simple QA routing checks to Gemini Flash instead of Pro saving 40% cost.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

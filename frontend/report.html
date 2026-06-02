@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Báo cáo Kiến trúc & Cơ chế Tích hợp API</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #07090e;
+      --bg-secondary: #0d111a;
+      --bg-card: rgba(20, 26, 40, 0.6);
+      --border-color: rgba(255, 255, 255, 0.05);
+      --border-glow: rgba(59, 130, 246, 0.2);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-blue: #3b82f6;
+      --accent-purple: #a855f7;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(circle at 10% 10%, rgba(139, 92, 246, 0.04), transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.03), transparent 40%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 30px;
+    }
+    h1 {
+      font-size: 32px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff, var(--text-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: var(--accent-cyan);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 1.5px;
+    }
+    section {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      transition: border-color 0.3s;
+    }
+    section:hover {
+      border-color: var(--border-glow);
+    }
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+    h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin: 20px 0 10px 0;
+    }
+    p {
+      color: var(--text-secondary);
+      font-size: 14.5px;
+      margin-bottom: 15px;
+    }
+    ul, ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    li {
+      margin-bottom: 6px;
+    }
+    strong {
+      color: #fff;
+    }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(255,255,255,0.04);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--accent-purple);
+      font-size: 13px;
+    }
+    pre {
+      background: #04060a;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      margin: 15px 0;
+    }
+    pre code {
+      background: none;
+      color: #c0caf5;
+      padding: 0;
+      font-size: 12.5px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .badge-success {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .badge-info {
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+    }
+    .badge-warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+    .flowchart {
+      background: #090d16;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin: 20px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .flow-step {
+      display: inline-block;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-glow);
+      border-radius: 6px;
+      padding: 10px 14px;
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.05);
+    }
+    .flow-arrow {
+      margin: 8px 0;
+      color: var(--accent-cyan);
+      font-weight: bold;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <header>
+    <div class="subtitle">Báo cáo kỹ thuật hệ thống</div>
+    <h1>Tái Cấu Trúc Đơn Vị Giao Diện & Cơ Chế Kết Nối API</h1>
+    <p style="margin-top: 10px;">Đơn vị phát triển: AI Software Factory Team · Trạng thái: <span class="badge badge-success">Đóng gói thành công</span></p>
+  </header>
+
+  <!-- Section 1: Overview -->
+  <section>
+    <h2>1. Tổng quan Kiến trúc Tái cấu trúc</h2>
+    <p>Nhằm đáp ứng yêu cầu <strong>làm sạch mã nguồn</strong>, loại bỏ trạng thái nguyên khối (monolithic) và chuyển dịch sang hướng mô-đun phát triển mở rộng lâu dài, chúng tôi đã tái thiết kế thành công toàn bộ hệ thống giao diện 19 màn hình của <strong>AI Software Factory Platform</strong>.</p>
+    <p>Các cải tiến cốt lõi:</p>
+    <ul>
+      <li><strong>index.html (Rút gọn 90% dòng code)</strong>: Từ file gốc 1000 dòng code phức tạp, hiện tại chỉ còn <strong>130 dòng</strong> đóng vai trò làm khung chứa cố định (Sidebar, Top Header, Footer) và cung cấp một cổng hiển thị động (Dynamic Viewport) dạng <code>&lt;main id="main-view-viewport"&gt;&lt;/main&gt;</code>.</li>
+      <li><strong>Tách biệt Template hiển thị (src/views/)</strong>: Toàn bộ cấu trúc HTML của 19 màn hình đã được tách biệt thành các file <code>.html</code> độc lập trong thư mục <code>src/views/</code>. Các tệp này được nạp động thời điểm build qua tính năng <code>?raw</code> của Vite.</li>
+      <li><strong>Tách biệt Logic điều khiển (src/js/views/)</strong>: Mỗi màn hình được điều phối bởi một Lớp (Class) xử lý kế thừa từ lớp cơ sở <code>BaseView</code>, tự trị quản lý sự kiện, đồng bộ API và giải phóng bộ nhớ.</li>
+    </ul>
+  </section>
+
+  <!-- Section 2: API Integration Mechanism -->
+  <section>
+    <h2>2. Cơ chế Tích hợp Kết nối API Realtime</h2>
+    <p>Kiến trúc mới cung cấp một cơ chế tích hợp API cực kỳ nhất quán, mượt mà và bảo mật từ Frontend đến hệ thống API Backend thông qua 3 lớp xử lý:</p>
+
+    <h3>A. Lớp Cấu hình Ủy quyền Development Proxy (Vite server)</h3>
+    <p>Khi chạy phát triển cục bộ, Vite Server được cấu hình một cổng Proxy trong file <code>vite.config.js</code> để tự động chuyển tiếp toàn bộ các yêu cầu mạng từ Frontend lên Server API Backend (FastAPI chạy ở cổng 8000) nhằm tránh các lỗi về CORS:</p>
+    <pre><code>// Cấu hình Proxy trong vite.config.js
+proxy: {
+  '/api': {
+    target: 'http://127.0.0.1:8000',
+    changeOrigin: true,
+    secure: false,
+  }
+}</code></pre>
+
+    <h3>B. Lớp API Client Tập trung (src/js/api.js)</h3>
+    <p>Toàn bộ mã nguồn kết nối mạng được tập trung hóa trong <code>api.js</code>. Tại đây, client tự động đính kèm Token xác thực JWT lấy từ LocalStorage (được lưu tại tab Pipelines hoặc Settings) vào tiêu đề <code>Authorization: Bearer &lt;token&gt;</code> cho mỗi request:</p>
+    <pre><code>// Cơ chế tự động đính kèm JWT Token trong src/js/api.js
+export async function fetchJSON(url) {
+  const headers = {};
+  const token = getToken(); // Lấy từ localStorage
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const resp = await fetch(url, { headers });
+  if (!resp.ok) {
+    throw new Error(`Truy cập ${url} thất bại: ${resp.status}`);
+  }
+  return resp.json();
+}</code></pre>
+
+    <h3>C. Vòng đời Tự động Đồng bộ trên View (Lifecycle-based Polling)</h3>
+    <p>Mỗi View Class (ví dụ <code>OverviewView</code>, <code>PipelinesView</code>) tận dụng các hàm vòng đời để quản lý việc gọi API:</p>
+    <ol>
+      <li><code>onMount()</code>: Được gọi ngay khi View được chèn vào DOM. Thực hiện gọi API lấy dữ liệu lần đầu và thiết lập bộ hẹn giờ <code>setInterval(() => this.onUpdate(), 5000)</code> để tự động reload dữ liệu mỗi 5 giây.</li>
+      <li><code>onUpdate()</code>: Thực thi tải dữ liệu bất đồng bộ từ các hàm trong <code>api.js</code> và ánh xạ (render) trực tiếp vào các phần tử giao diện bằng việc cập nhật văn bản, vẽ biểu đồ tròn, biểu đồ SVG, hoặc sinh các dòng logs.</li>
+      <li><code>onUnmount()</code>: Được gọi khi người dùng chuyển sang màn hình khác. <strong>Giải phóng hoàn toàn bộ đếm thời gian (clearInterval)</strong>, giúp trình duyệt tối ưu hóa bộ nhớ, tránh tình trạng gọi API ngầm lãng phí băng thông và CPU.</li>
+    </ol>
+  </section>
+
+  <!-- Section 3: Data Flow Diagram -->
+  <section>
+    <h2>3. Sơ đồ Luồng Dữ liệu API động</h2>
+    <div class="flowchart">
+      <div class="flow-step">1. Người dùng bấm chọn Menu Sidebar / Chuyển hướng trang</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">2. Router kích hoạt showView() → Gọi view.onUnmount() của View cũ</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">3. Gỡ bỏ HTML cũ → Chèn Template view.html mới → Gọi view.onMount()</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">4. view.onMount() gọi api.js lấy dữ liệu ban đầu + Thiết lập setInterval</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">5. Dữ liệu API phản hồi → view.onUpdate() cập nhật giao diện (realtime 5s)</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">6. Rời khỏi trang → view.onUnmount() dọn dẹp bộ đếm interval sạch sẽ</div>
+    </div>
+  </section>
+
+  <!-- Section 4: Sample Integration Code -->
+  <section>
+    <h2>4. Minh họa Code Kết nối trong View thực tế</h2>
+    <p>Dưới đây là cấu trúc code tiêu biểu trong <code>src/js/views/PipelinesView.js</code> thể hiện sự phối hợp hoàn hảo giữa giao diện và cơ chế đồng bộ API:</p>
+    <pre><code>import BaseView from './BaseView.js';
+import template from '../../views/pipelines.html?raw';
+import * as api from '../api.js';
+
+export default class PipelinesView extends BaseView {
+  constructor(router) {
+    super('pipelines', template);
+    this.router = router;
+    this.refreshInterval = null;
+  }
+
+  onMount() {
+    // 1. Gọi dữ liệu API lần đầu
+    this.onUpdate();
+
+    // 2. Thiết lập cơ chế tự động đồng bộ hoá realtime mỗi 5 giây
+    this.refreshInterval = setInterval(() => this.onUpdate(), 5000);
+  }
+
+  onUnmount() {
+    // 3. Huỷ bỏ timer để giải phóng bộ nhớ khi rời trang
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+      this.refreshInterval = null;
+    }
+  }
+
+  async onUpdate() {
+    try {
+      // Gọi API bất đồng bộ lấy danh sách tác vụ từ backend
+      const data = await api.getTasks();
+      
+      // Ánh xạ dữ liệu trả về trực tiếp vào phần tử giao diện
+      const target = this.container.querySelector('#task-summary');
+      if (target) {
+        target.innerHTML = `&lt;div class="total"&gt;Total Tasks: ${data.total}&lt;/div&gt;`;
+      }
+    } catch (err) {
+      console.error("Lỗi cập nhật API:", err);
+    }
+  }
+}</code></pre>
+  </section>
+
+  <!-- Section 5: Dynamic LLM Model Selector for AI Agents -->
+  <section>
+    <h2>5. Tích hợp Dynamic Models & Ô Tìm kiếm nhanh cho AI Agents</h2>
+    <p>Để tăng cường tính linh hoạt và cá nhân hoá cho từng Agent, chúng tôi đã tích hợp thành công cơ chế cấu hình LLM Provider động cùng ô tìm kiếm nhanh (autocomplete datalist) gốc:</p>
+    
+    <h3>A. Luồng cấu hình liên màn hình (Cross-View Config Flow)</h3>
+    <p>Thông tin khóa API và địa chỉ Base URL được người dùng cấu hình một lần duy nhất tại màn hình <strong>AI Models</strong> (lưu trữ an toàn trong <code>localStorage</code> dưới dạng <code>api_key_&lt;provider&gt;</code> và <code>base_url_&lt;provider&gt;</code>).</p>
+    <p>Khi người dùng chỉnh sửa cấu hình một Agent tại màn hình <strong>AI Agents</strong>:</p>
+    <ul>
+      <li>Ứng dụng tự động đọc Provider được cấu hình cho Agent đó (ví dụ: <code>openrouter</code>, <code>openai</code>, <code>deepseek</code>, v.v.).</li>
+      <li>Gọi API động <code>/api/models?provider=...&key=...&base_url=...</code> để nạp danh sách models thực tế thời gian thực tương ứng với thông tin tài khoản của Provider đó.</li>
+    </ul>
+
+    <h3>B. Giao diện Dropdown tìm kiếm nhanh (Searchable Autocomplete Dropdown)</h3>
+    <p>Thay thế thẻ <code>&lt;select&gt;</code> tĩnh cũ bằng cấu trúc HTML5 native cực kỳ nhẹ và mượt mà, hỗ trợ gõ lọc tìm kiếm ngay lập tức:</p>
+    <pre><code>&lt;!-- Ô nhập tìm kiếm liên kết với Datalist trong src/views/agents.html --&gt;
+&lt;input type="text" id="modal-field-model" list="modal-field-model-list" placeholder="Gõ để lọc..." required&gt;
+&lt;datalist id="modal-field-model-list"&gt;&lt;/datalist&gt;</code></pre>
+    <p>Khi chọn thay đổi <strong>LLM Provider</strong>, hệ thống lập tức dọn dẹp ô nhập cũ, tự động gửi request tải lại danh sách model mới và cập nhật tức thì danh sách gợi ý trong <code>&lt;datalist&gt;</code> đi kèm phản hồi trạng thái trực quan.</p>
+  </section>
+
+  <!-- Section 6: Conclusion -->
+  <section style="border-left: 4px solid var(--accent-green);">
+    <h2>6. Kết luận</h2>
+    <p>Kiến trúc **Modular Vanilla JS** mới kết hợp cùng cơ chế **Vite ?raw Template** và **Lớp API Client tập trung** đã mang lại một bước tiến vượt bậc cho dự án:</p>
+    <ol>
+      <li>Giúp mã nguồn tách biệt, sạch sẽ, tuân thủ đúng triết lý <strong>Separation of Concerns</strong>.</li>
+      <li>Tránh rò rỉ bộ nhớ hoàn toàn bằng việc quản lý vòng đời timer tối ưu.</li>
+      <li>Dễ dàng gắn thêm bất kỳ Endpoint API Backend mới nào chỉ bằng việc khai báo hàm trong <code>src/js/api.js</code> và gọi cập nhật tại phương thức <code>onUpdate()</code> của View tương ứng.</li>
+      <li>Cơ chế liên kết và đồng bộ cấu hình qua <code>localStorage</code> giúp ứng dụng hoạt động thông minh, mượt mà và tối đa hóa trải nghiệm người dùng mà không cần thiết lập database phức tạp ở Frontend.</li>
+    </ol>
+  </section>
+
+</div>
+
+</body>
+</html>

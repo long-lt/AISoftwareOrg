@@ -1,0 +1,27 @@
+{
+  "name": "handle_files",
+  "version": "v2",
+  "applies_to": "dev_agent",
+  "triggers": [
+    "file",
+    "csv",
+    "pathlib",
+    "open("
+  ],
+  "steps": [
+    "Check if file exists using pathlib before opening",
+    "Use 'with open(...)' for safe file handling",
+    "Handle encoding (utf-8) explicitly",
+    "Prevent regression: ModuleNotFoundError: No module named 'pytest'",
+    "Double check business logic and edge cases",
+    "Plan for iterative development — keep components modular"
+  ],
+  "created_from": "927c63cf",
+  "created_at": "2026-05-10T06:47:11.606445+00:00",
+  "source_task_id": "T3",
+  "notes": [
+    "Test failed: ModuleNotFoundError: No module named 'pytest'",
+    "Fix reasons: logic/test failure",
+    "Required 4 development attempts"
+  ]
+}

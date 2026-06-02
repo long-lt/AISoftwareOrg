@@ -1,0 +1,11 @@
+{
+  "name": "handle_files",
+  "version": "v1",
+  "applies_to": "dev_agent",
+  "triggers": ["file", "csv", "pathlib", "open("],
+  "steps": [
+    "Check if file exists using pathlib before opening",
+    "Use 'with open(...)' for safe file handling",
+    "Handle encoding (utf-8) explicitly"
+  ]
+}

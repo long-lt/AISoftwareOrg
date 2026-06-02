@@ -1,0 +1,221 @@
+<!-- Top 6 KPI Metric Cards -->
+<section class="grid-kpis">
+  <div class="kpi-card purple">
+    <div>
+      <div class="kpi-label">Projects</div>
+      <div class="kpi-value" id="kpi-projects">0</div>
+      <div class="kpi-trend" id="kpi-projects-trend" style="color: var(--text-muted); font-size: 11px;">
+        Hoạt động
+      </div>
+    </div>
+    <div class="kpi-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></div>
+  </div>
+  
+  <div class="kpi-card blue">
+    <div>
+      <div class="kpi-label">Pipelines</div>
+      <div class="kpi-value" id="kpi-pipelines">0</div>
+      <div class="kpi-trend" id="kpi-pipelines-trend" style="color: var(--text-muted); font-size: 11px;">
+        Đã kích hoạt
+      </div>
+    </div>
+    <div class="kpi-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+  </div>
+
+  <div class="kpi-card green">
+    <div>
+      <div class="kpi-label">AI Models</div>
+      <div class="kpi-value" id="kpi-models">0</div>
+      <div class="kpi-trend" id="kpi-models-trend" style="color: var(--text-muted); font-size: 11px;">
+        Active models
+      </div>
+    </div>
+    <div class="kpi-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+  </div>
+
+  <div class="kpi-card yellow">
+    <div>
+      <div class="kpi-label">Deployments</div>
+      <div class="kpi-value" id="kpi-deployments">0</div>
+      <div class="kpi-trend" id="kpi-deployments-trend" style="color: var(--text-muted); font-size: 11px;">
+        Bản phát hành
+      </div>
+    </div>
+    <div class="kpi-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2H2v20h20V2zM12 18v-6"/></svg></div>
+  </div>
+
+  <div class="kpi-card green">
+    <div>
+      <div class="kpi-label">Success Rate</div>
+      <div class="kpi-value" id="kpi-success-rate">0.0%</div>
+      <div class="kpi-trend" id="kpi-success-trend" style="color: var(--text-muted); font-size: 11px;">
+        Tỷ lệ thành công
+      </div>
+    </div>
+    <div class="kpi-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div>
+  </div>
+
+  <div class="kpi-card purple">
+    <div>
+      <div class="kpi-label">Cost This Month</div>
+      <div class="kpi-value" id="kpi-cost">$0.00</div>
+      <div class="kpi-trend" id="kpi-cost-trend" style="color: var(--text-muted); font-size: 11px;">
+        Tổng chi phí token
+      </div>
+    </div>
+    <div class="kpi-icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+  </div>
+</section>
+
+<!-- Main Center Panel Grid -->
+<div class="section-grid">
+  <!-- Left: Delivery Pipeline Overview -->
+  <div class="card-panel">
+    <div class="card-panel-header">
+      <h2>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+        Delivery Pipeline Overview
+      </h2>
+    </div>
+
+    <div class="pipeline-flow-container" id="overview-pipeline-stages">
+      <div class="pipeline-stage stage-plan">
+        <div class="stage-header">
+          <div class="stage-icon">📋</div>
+          <span class="stage-label">Plan</span>
+        </div>
+        <div class="stage-value" id="stage-plan-val">0</div>
+        <div class="stage-desc">Phân tích specs di động.</div>
+      </div>
+      <div class="pipeline-stage stage-code">
+        <div class="stage-header">
+          <div class="stage-icon">💻</div>
+          <span class="stage-label">Code</span>
+        </div>
+        <div class="stage-value" id="stage-code-val">0</div>
+        <div class="stage-desc">Mã nguồn Flutter đã sinh.</div>
+      </div>
+      <div class="pipeline-stage stage-build">
+        <div class="stage-header">
+          <div class="stage-icon">⚙️</div>
+          <span class="stage-label">Build</span>
+        </div>
+        <div class="stage-value" id="stage-build-val">0</div>
+        <div class="stage-desc">Biên dịch web release.</div>
+      </div>
+      <div class="pipeline-stage stage-test">
+        <div class="stage-header">
+          <div class="stage-icon">🔬</div>
+          <span class="stage-label">Test</span>
+        </div>
+        <div class="stage-value" id="stage-test-val">0</div>
+        <div class="stage-desc">Kiểm thử static QA.</div>
+      </div>
+      <div class="pipeline-stage stage-deploy">
+        <div class="stage-header">
+          <div class="stage-icon">🚀</div>
+          <span class="stage-label">Deploy</span>
+        </div>
+        <div class="stage-value" id="stage-deploy-val">0</div>
+        <div class="stage-desc">Bản phát hành thành công.</div>
+      </div>
+      <div class="pipeline-stage stage-monitor">
+        <div class="stage-header">
+          <div class="stage-icon">📊</div>
+          <span class="stage-label">Monitor</span>
+        </div>
+        <div class="stage-value" id="stage-monitor-val">0</div>
+        <div class="stage-desc">Dịch vụ online giám sát.</div>
+      </div>
+    </div>
+
+    <div class="pipeline-bottom-bar">
+      <div style="font-size: 12px; font-weight: bold; color: var(--text-secondary);">Overall Success Rate:</div>
+      <div class="progress-track-wrapper">
+        <div class="progress-track">
+          <div class="progress-fill" id="overview-progress-bar" style="width: 0%;"></div>
+        </div>
+        <span style="font-size: 13px; font-weight: 700; color: #fff;" id="overview-success-pct">0.0%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Recent Deployments -->
+  <div class="card-panel">
+    <div class="card-panel-header">
+      <h2>Recent Deployments</h2>
+      <div class="card-panel-actions">
+        <a id="overview-goto-deployments">View all</a>
+      </div>
+    </div>
+
+    <div class="deployments-list" id="overview-deployments">
+      <p style="color:var(--text-secondary); padding: 10px; font-size: 13px;">Đang tải dữ liệu...</p>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Tri-Panel Grid -->
+<div class="grid-thirds">
+  <!-- 1. AI Model Performance -->
+  <div class="card-panel">
+    <div class="card-panel-header">
+      <h2>AI Models Active Registry</h2>
+      <div class="card-panel-actions">
+        <a id="overview-goto-models">View all</a>
+      </div>
+    </div>
+    <table class="table-models" id="overview-models-table">
+      <thead>
+        <tr>
+          <th>Model ID</th>
+          <th>Provider</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="overview-models-table-body">
+        <tr>
+          <td colspan="3" style="text-align: center; color: var(--text-muted); font-size: 12.5px;">Đang tải danh sách mô hình...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 2. Activity Feed -->
+  <div class="card-panel">
+    <div class="card-panel-header">
+      <h2>Activity Feed</h2>
+    </div>
+    <div class="timeline" id="overview-activity-feed">
+      <p style="color:var(--text-secondary); padding: 10px; font-size: 13px;">Không có hoạt động gần đây.</p>
+    </div>
+  </div>
+
+  <!-- 3. Cost Overview -->
+  <div class="card-panel">
+    <div class="card-panel-header">
+      <h2>Cost Overview</h2>
+    </div>
+    <div class="cost-box">
+      <div class="donut-container">
+        <div class="donut-chart" id="overview-cost-donut" style="background: conic-gradient(var(--text-muted) 0% 100%);">
+          <div class="donut-center-text">
+            <div class="donut-val" id="overview-cost-total-donut">$0.00</div>
+            <div class="donut-lbl">Total</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-legend" id="overview-cost-legend">
+        <div style="text-align: center; width: 100%; color: var(--text-muted); font-size: 12.5px;">Chưa có chi phí tiêu hao.</div>
+      </div>
+    </div>
+    <div style="border-top: 1px solid var(--border-color); padding-top: 12px; display: flex; justify-content: space-between; align-items: baseline;">
+      <div>
+        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">This Month</div>
+        <div style="font-size: 20px; font-weight: 800;" id="overview-cost-footer">$0.00</div>
+      </div>
+    </div>
+  </div>
+</div>

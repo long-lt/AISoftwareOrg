@@ -1,0 +1,107 @@
+<!-- Wizard Block Header -->
+<div style="margin-bottom:20px; display:flex; gap:8px; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+  <a id="wizard-back-projects" style="font-size:12px; color:var(--text-secondary); text-decoration:none; cursor:pointer;">Projects</a>
+  <span style="font-size:12px; color:var(--text-muted);">/</span>
+  <span style="font-size:12px; color:var(--text-muted);">Create New Initiative Wizard</span>
+</div>
+
+<!-- Stepper top bar -->
+<div class="card-panel" style="margin-bottom:24px; padding:16px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:700;">
+    <span style="color:var(--accent-blue);" id="step-lbl-1">● Step 1: Basics</span>
+    <span style="color:var(--text-muted);" id="step-lbl-2">○ Step 2: Source Repository</span>
+    <span style="color:var(--text-muted);" id="step-lbl-3">○ Step 3: AI Agents Setup</span>
+    <span style="color:var(--text-muted);" id="step-lbl-4">○ Step 4: Pipelines gate</span>
+    <span style="color:var(--text-muted);" id="step-lbl-5">○ Step 5: Review</span>
+  </div>
+  <div class="progress-track" style="height:4px; background:rgba(255,255,255,0.05); border-radius:2px; margin-top:12px;">
+    <div id="wizard-stepper-progress" style="width:20%; height:100%; background:var(--accent-blue); transition: width 0.3s ease;"></div>
+  </div>
+</div>
+
+<!-- Form Container Card -->
+<div class="card-panel" style="max-width:720px; margin:0 auto; padding:32px;">
+  <form id="wizard-form-el" style="display:flex; flex-direction:column; gap:20px;">
+    
+    <!-- Step 1 Content -->
+    <div class="wizard-step-section active" id="wizard-step-1-content">
+      <h3 style="font-size:16px; font-weight:700; color:#fff; margin-bottom:15px;">Project Basic Information</h3>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label>Initiative Project Name</label>
+        <input type="text" id="wizard-name" placeholder="e.g. Intelligent Document Classifier" required style="width:100%; padding:10px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:#fff; outline:none;">
+      </div>
+      <div class="form-group">
+        <label>Initiative Description</label>
+        <textarea id="wizard-description" rows="3" placeholder="Describe the purpose, targets, and expected AI outputs..." style="width:100%; padding:10px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:#fff; outline:none;"></textarea>
+      </div>
+    </div>
+
+    <!-- Step 2 Content -->
+    <div class="wizard-step-section" id="wizard-step-2-content" style="display:none;">
+      <h3 style="font-size:16px; font-weight:700; color:#fff; margin-bottom:15px;">Source Code Integration</h3>
+      <div class="form-group">
+        <label>Select Workspace Option</label>
+        <select id="wizard-workspace-mode" style="width:100%; padding:10px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:#fff; outline:none;">
+          <option value="scratch">Start project completely from scratch</option>
+          <option value="github">Import from active GitHub Repository</option>
+          <option value="prd">Extract tasks directly from raw Product PRD</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-top:12px;">
+        <label>Git Repository URL (optional)</label>
+        <input type="text" id="wizard-repo" placeholder="github.com/owner/repo" style="width:100%; padding:10px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:#fff; outline:none;">
+      </div>
+    </div>
+
+    <!-- Step 3 Content -->
+    <div class="wizard-step-section" id="wizard-step-3-content" style="display:none;">
+      <h3 style="font-size:16px; font-weight:700; color:#fff; margin-bottom:15px;">AI Worker Allocation</h3>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <input type="checkbox" id="wizard-agent-planner" checked style="width:16px; height:16px;">
+          <span>Allocate **Product Planner Agent** for BA roadmaps</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <input type="checkbox" id="wizard-agent-dev" checked style="width:16px; height:16px;">
+          <span>Allocate **Code Writer Agent** for coding</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <input type="checkbox" id="wizard-agent-qa" checked style="width:16px; height:16px;">
+          <span>Allocate **QA Agent** for automated testing checks</span>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:12px;">
+        <label>Default LLM Model</label>
+        <input type="text" id="wizard-model" value="google/gemini-2.5-flash" placeholder="e.g. google/gemini-2.5-flash" style="width:100%; padding:10px; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:4px; color:#fff; outline:none;">
+      </div>
+    </div>
+
+    <!-- Step 4 Content -->
+    <div class="wizard-step-section" id="wizard-step-4-content" style="display:none;">
+      <h3 style="font-size:16px; font-weight:700; color:#fff; margin-bottom:15px;">Automated Delivery Pipeline Gates</h3>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <input type="checkbox" id="wizard-pipelines" checked style="width:16px; height:16px;">
+          <span>Trigger AI quality benchmark checks before deployment</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <input type="checkbox" id="wizard-hitl" checked style="width:16px; height:16px;">
+          <span>Require human-in-the-loop validation for production release</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 Content -->
+    <div class="wizard-step-section" id="wizard-step-5-content" style="display:none;">
+      <h3 style="font-size:16px; font-weight:700; color:#fff; margin-bottom:15px;">Review Project Setup</h3>
+      <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6;">You are about to launch a new software factory initiative. AI agents will automatically create plans, integrate with repositories, allocate resources, and build quality checkpoints.</p>
+    </div>
+
+    <!-- Stepper Navigation buttons -->
+    <div style="display:flex; justify-content:space-between; margin-top:20px; border-top:1px solid var(--border-color); padding-top:16px;">
+      <button class="btn btn-secondary" id="wizard-prev-btn" type="button" style="padding:10px 20px; visibility:hidden;">Back</button>
+      <button class="btn" id="wizard-next-btn" type="button" style="padding:10px 24px;">Next Step</button>
+    </div>
+
+  </form>
+</div>

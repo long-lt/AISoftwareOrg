@@ -1,0 +1,25 @@
+<div class="stat-row" style="display:flex; justify-content:space-between; margin-bottom:24px; background:var(--bg-card); padding:20px; border-radius:var(--radius); border:1px solid var(--border-color); flex-wrap:wrap; gap:16px;">
+  <div class="stat"><span class="stat-value" id="auto-kpi-active">0</span><div class="stat-label">Active Rules</div></div>
+  <div class="stat"><span class="stat-value" id="auto-kpi-runs">0</span><div class="stat-label">Runs Today</div></div>
+  <div class="stat"><span class="stat-value" id="auto-kpi-failed" style="color:var(--accent-rose)">0</span><div class="stat-label">Failed Runs</div></div>
+  <div class="stat"><span class="stat-value" id="auto-kpi-saved" style="color:var(--accent-green)">0h</span><div class="stat-label">Time Saved</div></div>
+  <div class="stat"><span class="stat-value" id="auto-kpi-success-rate" style="color:var(--accent-green)">0.0%</span><div class="stat-label">Rule Success Rate</div></div>
+</div>
+
+<div class="grid-thirds" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+  <div class="card-panel">
+    <h2>⚡ Auto-Plan tasks from Spec</h2>
+    <p style="font-size:12px; color:var(--text-secondary); margin:8px 0; line-height:1.5;"><strong>Trigger:</strong> New PRD uploaded to Hub.</p>
+    <p style="font-size:11px; color:var(--text-muted); line-height:1.5;">Extract requirements → build folders → assign PM planner bot.</p>
+  </div>
+  <div class="card-panel">
+    <h2>⚡ Quality Gate before Deployment</h2>
+    <p style="font-size:12px; color:var(--text-secondary); margin:8px 0; line-height:1.5;"><strong>Trigger:</strong> Branch merge pull request.</p>
+    <p style="font-size:11px; color:var(--text-muted); line-height:1.5;">Run model benchmarks → security checks → push to staging.</p>
+  </div>
+  <div class="card-panel">
+    <h2>⚡ Drift Auto-healing</h2>
+    <p style="font-size:12px; color:var(--text-secondary); margin:8px 0; line-height:1.5;"><strong>Trigger:</strong> Drift score > 0.10.</p>
+    <p style="font-size:11px; color:var(--text-muted); line-height:1.5;">Alert owner → rollback model deployment → routing via OpenAI.</p>
+  </div>
+</div>

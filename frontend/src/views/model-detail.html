@@ -1,0 +1,116 @@
+<!-- Breadcrumbs & Action Header -->
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:16px;">
+  <div>
+    <div style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+      <a id="model-detail-back" style="color:var(--text-secondary); text-decoration:none; cursor:pointer;">AI Models</a>
+      <span>/</span>
+      <span style="color:var(--text-muted);" id="model-detail-breadcrumb">Code Model</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <h2 style="font-size:22px; font-weight:800; color:#fff; margin:0;" id="model-detail-name">Model Detail</h2>
+      <span class="badge badge-success" id="model-detail-status">HEALTHY</span>
+      <span class="badge badge-queued" style="font-family:monospace;" id="model-detail-ver">v1.0</span>
+    </div>
+  </div>
+  
+  <div style="display:flex; gap:10px;">
+    <button class="btn btn-secondary" style="padding:8px 14px; font-size:12px; font-weight:700;">Rollback</button>
+    <button class="btn btn-secondary" style="padding:8px 14px; font-size:12px; font-weight:700;">Promote Version</button>
+    <button class="btn" style="padding:8px 16px; font-size:12px; font-weight:700;">Run Evaluation</button>
+  </div>
+</div>
+
+<!-- Top Stats Cards Grid -->
+<section class="grid-kpis-mini" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
+  <div class="kpi-card-mini green" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Accuracy</div>
+      <div style="font-size: 22px; font-weight: 800; margin-top: 4px; color:var(--accent-green);" id="model-detail-kpi-acc">0.0%</div>
+    </div>
+    <div style="font-size: 18px;">🎯</div>
+  </div>
+  <div class="kpi-card-mini blue" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Latency p95</div>
+      <div style="font-size: 22px; font-weight: 800; margin-top: 4px;" id="model-detail-kpi-latency">0.0s</div>
+    </div>
+    <div style="font-size: 18px;">⏱️</div>
+  </div>
+  <div class="kpi-card-mini green" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Drift Score</div>
+      <div style="font-size: 22px; font-weight: 800; margin-top: 4px; color:var(--accent-green);" id="model-detail-kpi-drift">0.00</div>
+    </div>
+    <div style="font-size: 18px;">📉</div>
+  </div>
+  <div class="kpi-card-mini purple" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Cost Today</div>
+      <div style="font-size: 22px; font-weight: 800; margin-top: 4px; color:var(--accent-purple);" id="model-detail-kpi-cost">$0.00</div>
+    </div>
+    <div style="font-size: 18px;">💰</div>
+  </div>
+  <div class="kpi-card-mini blue" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 16px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <div style="font-size: 10px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700;">Requests Today</div>
+      <div style="font-size: 22px; font-weight: 800; margin-top: 4px;" id="model-detail-kpi-requests">0</div>
+    </div>
+    <div style="font-size: 18px;">📞</div>
+  </div>
+</section>
+
+<!-- Performance trend chart + Evaluation results -->
+<div style="display:grid; grid-template-columns: 2fr 1fr; gap:24px; margin-bottom:24px;">
+  
+  <!-- Trend Chart -->
+  <div class="card-panel">
+    <div class="card-panel-header" style="margin-bottom:12px;">
+      <h2>📈 Accuracy & Drift Score Trend (Last 30 Days)</h2>
+    </div>
+    <div style="height:220px; position:relative; width:100%; margin-top:20px; background:rgba(0,0,0,0.1); border-radius:6px; overflow:hidden;">
+      <svg viewBox="0 0 600 200" style="width:100%; height:100%; display:block;">
+        <line x1="0" y1="50" x2="600" y2="50" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        <line x1="0" y1="100" x2="600" y2="100" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        <line x1="0" y1="150" x2="600" y2="150" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+        <!-- Accuracy line (Green) -->
+        <path d="M 0,90 Q 100,70 200,60 T 400,50 T 600,40" fill="none" stroke="var(--accent-green)" stroke-width="3"/>
+        <!-- Drift score (Rose) -->
+        <path d="M 0,180 Q 100,170 200,165 T 400,178 T 600,185" fill="none" stroke="var(--accent-rose)" stroke-width="2" stroke-dasharray="3,3"/>
+      </svg>
+      <div style="position:absolute; bottom:10px; right:15px; display:flex; gap:12px; font-size:10px;">
+        <span style="color:var(--accent-green); font-weight:700;">● Accuracy (Target > 90%)</span>
+        <span style="color:var(--accent-rose); font-weight:700;">● Model Drift Score</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Evaluation results list -->
+  <div class="card-panel">
+    <h2>🔬 Detailed Evaluation Benchmarks</h2>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-top:20px; font-size:13px;" id="model-detail-eval-list">
+      <div style="text-align:center; color:var(--text-muted); padding:20px;">Đang tải chi tiết kiểm định...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Version History Table -->
+<div class="card-panel">
+  <h2>📋 Model Release & Fine-Tuning Version History</h2>
+  <table style="margin-top:15px;">
+    <thead>
+      <tr>
+        <th>Version</th>
+        <th>Released Date</th>
+        <th>Accuracy</th>
+        <th>Average Latency</th>
+        <th>Drift Score</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="model-detail-version-history-body">
+      <tr>
+        <td colspan="6" style="text-align:center; color:var(--text-muted); padding:20px;">Đang tải lịch sử phiên bản...</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

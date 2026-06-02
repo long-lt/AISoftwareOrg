@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Improvement Roadmap — Unified AI Software Factory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #060913;
+            --bg-secondary: #0b1120;
+            --bg-card: rgba(17, 24, 43, 0.7);
+            --border-color: rgba(30, 48, 80, 0.6);
+            --border-hover: rgba(0, 240, 255, 0.4);
+            
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            
+            --accent-cyan: #00f0ff;
+            --accent-purple: #a855f7;
+            --accent-indigo: #6366f1;
+            --accent-green: #10b981;
+            --accent-yellow: #f59e0b;
+            --accent-red: #ef4444;
+            
+            --gradient-primary: linear-gradient(135deg, #00f0ff 0%, #a855f7 100%);
+            --shadow-neon: 0 0 20px rgba(0, 240, 255, 0.12);
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            background-image: 
+                radial-gradient(circle at 10% 25%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 75%, rgba(168, 85, 247, 0.05) 0%, transparent 40%),
+                linear-gradient(rgba(6, 9, 19, 0.96), rgba(6, 9, 19, 0.96));
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        /* Header */
+        header {
+            padding: 60px 0 30px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(180deg, rgba(11, 17, 32, 0.6) 0%, transparent 100%);
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .title-area h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .title-area p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-top: 5px;
+        }
+
+        /* Filter Controls */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px 25px;
+            backdrop-filter: blur(8px);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .btn-filter {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-family: var(--font-main);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-filter:hover {
+            color: #fff;
+            border-color: var(--accent-cyan);
+        }
+
+        .btn-filter.active {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+        }
+
+        /* Roadmap Cards Grid */
+        .roadmap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .roadmap-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .roadmap-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 100% 0%, rgba(0, 240, 255, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .roadmap-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-neon);
+        }
+
+        .card-top {
+            margin-bottom: 20px;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .badge-priority {
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .badge-priority.p0 { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-priority.p1 { background: rgba(245, 158, 11, 0.15); color: var(--accent-yellow); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-priority.p2 { background: rgba(99, 102, 241, 0.15); color: var(--accent-indigo); border: 1px solid rgba(99, 102, 241, 0.3); }
+
+        .badge-status {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            padding: 2px 8px;
+            border-radius: 9999px;
+        }
+
+        .badge-status.completed { background: rgba(16, 185, 129, 0.12); color: var(--accent-green); }
+        .badge-status.active { background: rgba(0, 240, 255, 0.1); color: var(--accent-cyan); }
+        .badge-status.backlog { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .card-category {
+            font-size: 0.8rem;
+            font-family: var(--font-mono);
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .impact-bar-container {
+            margin-top: 15px;
+        }
+
+        .impact-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .impact-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .impact-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-content">
+            <div class="title-area">
+                <h1>Improvement Roadmap</h1>
+                <p>Cải tiến kiến trúc, giải quyết nợ kỹ thuật và mở rộng năng lực AI của hệ thống</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Interactive Controls -->
+        <div class="controls">
+            <div class="filter-group">
+                <span class="filter-label">Phân Loại:</span>
+                <button class="btn-filter active" onclick="filterItems('category', 'all', this)">Tất Cả</button>
+                <button class="btn-filter" onclick="filterItems('category', 'backend', this)">Backend</button>
+                <button class="btn-filter" onclick="filterItems('category', 'agents', this)">AI Agents</button>
+                <button class="btn-filter" onclick="filterItems('category', 'infra', this)">Hạ Tầng</button>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">Độ Ưu Tiên:</span>
+                <button class="btn-filter active" onclick="filterItems('priority', 'all', this)">Tất Cả</button>
+                <button class="btn-filter" onclick="filterItems('priority', 'p0', this)">P0 (Crucial)</button>
+                <button class="btn-filter" onclick="filterItems('priority', 'p1', this)">P1 (High)</button>
+                <button class="btn-filter" onclick="filterItems('priority', 'p2', this)">P2 (Medium)</button>
+            </div>
+        </div>
+
+        <!-- Roadmap Cards Grid -->
+        <div class="roadmap-grid" id="roadmap-container">
+            <!-- P0 - Backend -->
+            <div class="roadmap-card" data-category="backend" data-priority="p0" data-status="active">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="badge-priority p0">P0</span>
+                        <span class="badge-status active">Active</span>
+                    </div>
+                    <div class="card-category">Backend & Concurrency</div>
+                    <h3 class="card-title">Di Trú Sang Cơ Chế Redis Queue (python-rq)</h3>
+                    <p class="card-desc">Chuyển đổi hoàn toàn cơ chế chạy nền bất đồng bộ của FastAPI từ Python Threading sang hàng đợi Redis chuyên nghiệp. Giải quyết dứt điểm các xung đột tài nguyên khi chạy song song nhiều pipelines.</p>
+                </div>
+                <div class="impact-bar-container">
+                    <div class="impact-label">
+                        <span>Độ phức tạp / Hiệu quả</span>
+                        <span>Trung bình / Cao (85%)</span>
+                    </div>
+                    <div class="impact-bar">
+                        <div class="impact-fill" style="width: 85%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- P0 - Agents -->
+            <div class="roadmap-card" data-category="agents" data-priority="p0" data-status="active">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="badge-priority p0">P0</span>
+                        <span class="badge-status active">Active</span>
+                    </div>
+                    <div class="card-category">AI Agents Routing</div>
+                    <h3 class="card-title">Định Tuyến Đa Mô Hình (Multi-Model Routing)</h3>
+                    <p class="card-desc">Cấu hình LLMs linh hoạt. Sử dụng các mô hình nhỏ siêu rẻ (Gemini 1.5 Flash / GPT-4o-mini) cho các bước phân tích, lập danh sách đơn giản và lưu lại Claude 3.5 Sonnet / GPT-4o cho các bước lập trình, vá lỗi phức tạp.</p>
+                </div>
+                <div class="impact-bar-container">
+                    <div class="impact-label">
+                        <span>Độ phức tạp / Hiệu quả</span>
+                        <span>Trung bình / Rất Cao (95%)</span>
+                    </div>
+                    <div class="impact-bar">
+                        <div class="impact-fill" style="width: 95%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- P1 - Infra -->
+            <div class="roadmap-card" data-category="infra" data-priority="p1" data-status="active">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="badge-priority p1">P1</span>
+                        <span class="badge-status active">Active</span>
+                    </div>
+                    <div class="card-category">Infrastructure Sandbox</div>
+                    <h3 class="card-title">Docker Hóa Sandbox & Tối Ưu Flutter Build Cache</h3>
+                    <p class="card-desc">Đóng gói toàn bộ quá trình chạy thử nghiệm, test tĩnh của Flutter vào Docker container. Triển khai cơ chế lưu cache thư mục <code>.pub-cache</code> để giảm thời gian tải dependencies từ 3 phút xuống 30 giây.</p>
+                </div>
+                <div class="impact-bar-container">
+                    <div class="impact-label">
+                        <span>Độ phức tạp / Hiệu quả</span>
+                        <span>Cao / Cao (80%)</span>
+                    </div>
+                    <div class="impact-bar">
+                        <div class="impact-fill" style="width: 80%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- P1 - Backend -->
+            <div class="roadmap-card" data-category="backend" data-priority="p1" data-status="backlog">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="badge-priority p1">P1</span>
+                        <span class="badge-status backlog">Backlog</span>
+                    </div>
+                    <div class="card-category">Backend Storage</div>
+                    <h3 class="card-title">Nâng Cấp Hệ Cơ Sở Dữ Liệu Lên PostgreSQL Cluster</h3>
+                    <p class="card-desc">Chuẩn bị hạ tầng cho cơ chế SaaS nhiều người dùng (multi-tenant) bằng cách di chuyển SQLite local hiện tại sang cụm database PostgreSQL phân tán, hỗ trợ khóa dòng và xử lý đồng thời quy mô lớn.</p>
+                </div>
+                <div class="impact-bar-container">
+                    <div class="impact-label">
+                        <span>Độ phức tạp / Hiệu quả</span>
+                        <span>Trung bình / Cao (70%)</span>
+                    </div>
+                    <div class="impact-bar">
+                        <div class="impact-fill" style="width: 70%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- P2 - Agents -->
+            <div class="roadmap-card" data-category="agents" data-priority="p2" data-status="completed">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="badge-priority p2">P2</span>
+                        <span class="badge-status completed">Completed</span>
+                    </div>
+                    <div class="card-category">AI Self-Learning</div>
+                    <h3 class="card-title">Vòng Lặp Vá Lỗi Tự Động & Hàng Đợi HITL</h3>
+                    <p class="card-desc">Xây dựng hoàn chỉnh cơ chế cho phép QA Agent phát hiện lỗi cú pháp, tự động chuyển danh sách bug cho Refactor Agent để viết đè code, tích hợp hàng duyệt kinh nghiệm thủ công từ Platform Owner.</p>
+                </div>
+                <div class="impact-bar-container">
+                    <div class="impact-label">
+                        <span>Độ phức tạp / Hiệu quả</span>
+                        <span>Rất Cao / Xuất Sắc (100%)</span>
+                    </div>
+                    <div class="impact-bar">
+                        <div class="impact-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- P2 - Infra -->
+            <div class="roadmap-card" data-category="infra" data-priority="p2" data-status="backlog">
+                <div class="card-top">
+                    <div class="card-meta">
+                        <span class="badge-priority p2">P2</span>
+                        <span class="badge-status backlog">Backlog</span>
+                    </div>
+                    <div class="card-category">Infra & Delivery</div>
+                    <h3 class="card-title">Mở Rộng Biên Dịch Đa Nền Tảng (Multi-Platform Build)</h3>
+                    <p class="card-desc">Tích hợp macOS runners và Xcode CLI để cho phép đóng gói file cài đặt iOS (.ipa) và Android (.apk) trực tiếp từ pipeline của Software Factory, thay vì chỉ dừng lại ở xuất thư mục nén ZIP.</p>
+                </div>
+                <div class="impact-bar-container">
+                    <div class="impact-label">
+                        <span>Độ phức tạp / Hiệu quả</span>
+                        <span>Rất Cao / Trung bình (60%)</span>
+                    </div>
+                    <div class="impact-bar">
+                        <div class="impact-fill" style="width: 60%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const activeFilters = {
+            category: 'all',
+            priority: 'all'
+        };
+
+        function filterItems(filterType, value, buttonEl) {
+            // Update active filters
+            activeFilters[filterType] = value;
+
+            // Manage active class of buttons in the same group
+            const filterGroup = buttonEl.parentNode;
+            const buttons = filterGroup.querySelectorAll('.btn-filter');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            buttonEl.classList.add('active');
+
+            // Apply filter on cards
+            const cards = document.querySelectorAll('.roadmap-card');
+            cards.forEach(card => {
+                const categoryMatch = activeFilters.category === 'all' || card.dataset.category === activeFilters.category;
+                const priorityMatch = activeFilters.priority === 'all' || card.dataset.priority === activeFilters.priority;
+
+                if (categoryMatch && priorityMatch) {
+                    card.style.display = 'flex';
+                    // Trigger a micro fade-in animation
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                } else {
+                    card.style.display = 'none';
+                    card.style.opacity = '0';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

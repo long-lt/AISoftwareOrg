@@ -1,0 +1,75 @@
+# CLAUDE.md — Developer Guidelines & Commands
+
+Welcome to the **Unified AI Software Factory (`unified-ai-software-org`)** development guide. This document serves as a developer cheatsheet containing the essential build, test, and run commands, system architecture definitions, and coding guidelines.
+
+---
+
+## ⚡ Command Quick Reference
+
+### 1. Environment Setup
+*   **Create Virtual Environment:** `python3 -m venv venv`
+*   **Activate Virtual Environment (macOS/Linux):** `source venv/bin/activate`
+*   **Activate Virtual Environment (Windows):** `venv\Scripts\activate`
+*   **Install Dependencies:** `pip install -r requirements.txt`
+
+### 2. Backend & APIs (FastAPI)
+*   **Run Dev Server (with Auto-Reload):** `uvicorn dashboard.app:app --host 0.0.0.0 --port 8000 --reload`
+*   **API Documentation (Swagger):** http://localhost:8000/docs
+*   **API Documentation (Redoc):** http://localhost:8000/redoc
+
+### 3. Frontend Dashboard (Vite & Vanilla JS)
+*   **Install Frontend Dependencies:** `cd frontend && npm install`
+*   **Run Frontend in Developer Mode (Vite Hot-Reload):** `cd frontend && npm run dev`
+*   **Build Frontend for Production:** `cd frontend && npm run build` (Outputs to `frontend/dist/` which is automatically served by FastAPI on port 8000 in production mode).
+
+### 4. Background Services & Jobs Queue
+*   **Start Redis (via Docker Compose):** `docker-compose up -d`
+*   **Stop Redis:** `docker-compose down`
+*   **Run python-rq Worker (if configured):** `rq worker` (Default fallback runs asynchronous tasks in Python threads in backend memory).
+
+### 5. Running Automated Tests
+Run tests using `pytest` inside the active virtual environment:
+*   **Run All Tests:** `pytest`
+*   **Run Dashboard/Auth Tests:** `pytest tests/test_dashboard.py tests/test_dashboard_auth.py`
+*   **Run RBAC Tests:** `pytest tests/test_rbac.py`
+*   **Run Workflow Pipeline Tests:** `pytest tests/test_full_workflow.py`
+*   **Run Cost Tracker Tests:** `pytest tests/test_cost_tracker.py`
+
+---
+
+## 📁 System Core Directory Structure
+
+*   `dashboard/` - FastAPI Web Server, SQLite database configuration, JWT Auth, and routing modules.
+*   `frontend/` - Single-Page Application (SPA) built with Vite, vanilla JavaScript, and customized vanilla CSS styles.
+*   `agents/` - Definitions and system prompts for the AI Agents:
+    *   `software_org/` - Core management & planning agents (PM, Planner, Developer, QA, Reviewer, DevOps, Git).
+    *   `flutter_factory/` - Specialized 12-phase pipeline agents producing Flutter applications (BA, UI/UX, Dev, QA, Security, Runtime).
+*   `config/` - System settings, environment parsing, and LLM Providers registry (OpenRouter, Gemini, OpenAI).
+*   `core/` - The core engine of the system, including cost tracking, LangGraph states, messaging infrastructure, and centralized logging.
+*   `system/` - System-wide checks: Role-Based Access Control (RBAC) validations and Human-in-the-loop (HITL) approval queue.
+*   `workflows/` - Orchestration workflows, including the dev pipeline and the full 12-stage MVP compiler.
+*   `workspace/` - Sandbox space containing target source code and specs generated for custom application jobs.
+
+---
+
+## 🎨 Coding Standards & Guidelines
+
+### 1. Python Style Guide
+*   **Formatting:** Follow PEP 8 guidelines. Keep imports clean and alphabetically sorted within blocks (standard libraries first, third-party libraries, then internal modules).
+*   **Type Annotations:** Use strong type annotations for all function parameters and return values (e.g., `async def run(self, task: AgentTask) -> AgentResult:`).
+*   **Pydantic Models:** Define all API requests/responses and agent interactions using Pydantic `BaseModel` for validation and schema safety.
+*   **Error Handling:** Never let exceptions silently fail. Catch exceptions, write detailed error logs via the centralized logger, and return structured failure responses in agent outcomes.
+
+### 2. AI Agents Development Rules
+*   **Inheritance:** Every agent class must inherit from `BaseAgent` defined in `agents/base.py`.
+*   **Security & RBAC Check:** Every action that performs writing, executing, or accessing restricted commands **must** execute `self.validate_permission("PERMISSION_NAME")` beforehand.
+*   **Token tracking:** Every call to the LLM must register its prompt/response tokens using the `CostTracker` module to ensure dashboard metrics remain accurate.
+
+### 3. Frontend & Styling Rules
+*   **Vanilla Stack:** Do not add bulky UI libraries (like TailwindCSS or Bootstrap) unless explicitly requested. Write custom, clean vanilla CSS inside modern CSS custom variables.
+*   **Themes:** Follow the premium dark mode aesthetic (Deep Navy backgrounds, neon accents, rounded corners, subtle glassmorphism transparent borders).
+*   **Routing:** Maintain the client-side router in `frontend/src/router.js` to ensure the single-page application experience is preserved.
+
+### 4. Dart/Flutter Code Generation Rules
+*   **Analysis:** All Dart code generated by Dev agents must pass `flutter analyze` without warnings or errors.
+*   **Refactor/Repair Loop:** In case of compiler static checks failing, pass the complete `bug_list.md` reports directly to the `RefactorAgent` to rewrite broken files in-place.

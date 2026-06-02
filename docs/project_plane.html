@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Plan — Unified AI Software Factory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #07090e;
+            --bg-secondary: #0c101b;
+            --bg-card: rgba(18, 25, 41, 0.75);
+            --border-color: rgba(38, 57, 92, 0.5);
+            --border-hover: rgba(0, 240, 255, 0.4);
+            
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            
+            --accent-cyan: #00f0ff;
+            --accent-purple: #a855f7;
+            --accent-indigo: #6366f1;
+            --accent-green: #10b981;
+            --accent-yellow: #f59e0b;
+            --accent-red: #ef4444;
+            
+            --gradient-primary: linear-gradient(135deg, #00f0ff 0%, #6366f1 50%, #a855f7 100%);
+            --shadow-neon: 0 0 25px rgba(0, 240, 255, 0.15);
+            --font-main: 'Outfit', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            background-image: 
+                radial-gradient(circle at 5% 15%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 95% 75%, rgba(168, 85, 247, 0.05) 0%, transparent 40%),
+                linear-gradient(rgba(7, 9, 14, 0.97), rgba(7, 9, 14, 0.97));
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            padding-bottom: 100px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+
+        /* Header Style */
+        header {
+            padding: 60px 0 30px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(180deg, rgba(12, 16, 27, 0.6) 0%, transparent 100%);
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .title-area h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .title-area p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-top: 5px;
+        }
+
+        .badge-list {
+            display: flex;
+            gap: 12px;
+        }
+
+        .badge {
+            padding: 6px 16px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: rgba(18, 25, 41, 0.8);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-accent {
+            color: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+        }
+
+        /* Cards Layout */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .card:hover {
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-neon);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+        }
+
+        /* Interactive Timeline styles */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+            margin: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: rgba(38, 57, 92, 0.6);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 40px;
+            cursor: pointer;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -30px;
+            top: 4px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            border: 3px solid var(--accent-indigo);
+            z-index: 2;
+        }
+
+        .timeline-item.active .timeline-marker {
+            background: var(--accent-cyan);
+            border-color: #fff;
+            box-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        .timeline-content {
+            background: rgba(12, 16, 27, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-left: 10px;
+        }
+
+        .timeline-item.active .timeline-content {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 240, 255, 0.02);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .timeline-item:hover .timeline-content {
+            border-color: var(--text-secondary);
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .timeline-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .timeline-item.active .timeline-title {
+            color: var(--accent-cyan);
+        }
+
+        .timeline-date {
+            font-size: 0.85rem;
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 10px;
+            border-radius: 4px;
+        }
+
+        .timeline-body {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            display: none;
+            margin-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 15px;
+        }
+
+        .timeline-item.active .timeline-body {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .deliverables-list {
+            margin-top: 10px;
+            padding-left: 20px;
+            list-style-type: square;
+        }
+
+        .deliverables-list li {
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        /* Risk Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .severity-badge.high { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .severity-badge.medium { background: rgba(245, 158, 11, 0.15); color: var(--accent-yellow); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .severity-badge.low { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        /* Interactive Cost Estimator Slider */
+        .estimator-card {
+            background: linear-gradient(135deg, rgba(18, 25, 41, 0.8) 0%, rgba(12, 16, 27, 0.8) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .estimator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .estimator-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-cyan);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        .estimator-result {
+            background: rgba(8, 11, 17, 0.4);
+            border: 1px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .result-val {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            margin: 10px 0;
+            text-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+
+        .result-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-container">
+            <div class="title-area">
+                <h1>Project Plan</h1>
+                <p>Kế hoạch triển khai và phát triển hệ thống Enterprise AI Software Factory</p>
+            </div>
+            <div class="badge-list">
+                <div class="badge badge-accent">Phase 2 Active</div>
+                <div class="badge">4 Phases Roadmap</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Project Phases interactive Timeline -->
+        <div class="card">
+            <h2>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                Lộ Trình Triển Khai Chi Tiết (Nhấp để mở rộng)
+            </h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                Nhấp vào từng giai đoạn trong timeline để xem chi tiết các nhiệm vụ kỹ thuật, thời hạn và sản phẩm bàn giao tương ứng.
+            </p>
+
+            <div class="timeline">
+                <!-- Phase 1 -->
+                <div class="timeline-item" onclick="toggleTimelineItem(this)">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-title">Phase 1: Tinh chỉnh Cơ chế Điều phối Agent (LangGraph Core)</div>
+                            <span class="timeline-date">Q1 - Hoàn thành</span>
+                        </div>
+                        <p>Xây dựng lõi đa tác nhân hoạt động bất đồng bộ bằng LangGraph state machine, tích hợp phân cấp RBAC và cost tracking.</p>
+                        
+                        <div class="timeline-body">
+                            <strong style="color: var(--accent-cyan); display:block; margin-bottom:5px;">Nhiệm vụ cốt lõi:</strong>
+                            <ul class="deliverables-list">
+                                <li>Thiết lập BaseAgent class và cơ chế cấp quyền rành mạch giữa các agents (READ, WRITE, EXECUTE, CRITICAL).</li>
+                                <li>Hoàn thành bộ theo dõi chi phí CostTracker cộng dồn token LLM thực tế quy đổi USD.</li>
+                                <li>Viết suite kiểm thử tự động gồm 26 unit tests bao phủ 100% các tính năng lõi.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="timeline-item active" onclick="toggleTimelineItem(this)">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-title">Phase 2: Xây dựng Giao diện Dashboard Quản trị Tích hợp</div>
+                            <span class="timeline-date">Q2 - Đang triển khai</span>
+                        </div>
+                        <p>Phát triển bảng quản trị SPA full-stack (FastAPI Backend + Vite & Vanilla JS Frontend) với khả năng hiển thị thời gian thực.</p>
+                        
+                        <div class="timeline-body">
+                            <strong style="color: var(--accent-cyan); display:block; margin-bottom:5px;">Nhiệm vụ cốt lõi:</strong>
+                            <ul class="deliverables-list">
+                                <li>Hoàn thiện hệ thống REST APIs trên FastAPI hỗ trợ xem trạng thái pipeline, cost tracking, log stream và model switcher.</li>
+                                <li>Tạo giao diện dashboard tối ưu hóa trải nghiệm người dùng với kiến trúc glassmorphism, chủ đề tối cao cấp (premium dark theme).</li>
+                                <li>Tích hợp SSE (Server-Sent Events) để truyền log hoạt động của agent theo dạng stream trực tiếp lên terminal dashboard.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="timeline-item" onclick="toggleTimelineItem(this)">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-title">Phase 3: Sandbox Hóa & Agent Thử Nghiệm Runtime (Mobile Sandbox)</div>
+                            <span class="timeline-date">Q3 - Sắp diễn ra</span>
+                        </div>
+                        <p>Cô lập quá trình biên dịch ứng dụng Flutter, kích hoạt emulator ảo tự động để phát hiện crash dump và phân tích giao diện UI.</p>
+                        
+                        <div class="timeline-body">
+                            <strong style="color: var(--accent-cyan); display:block; margin-bottom:5px;">Nhiệm vụ cốt lõi:</strong>
+                            <ul class="deliverables-list">
+                                <li>Thiết lập môi trường biên dịch an toàn chạy bên trong Docker container cô lập đối với mã nguồn Dart sinh ra.</li>
+                                <li>Phát triển Runtime Verification Agent điều khiển headless Android/Web emulator để chạy thử ứng dụng di động.</li>
+                                <li>Sử dụng OCR và phân tích ảnh chụp màn hình để phát hiện lỗi tràn bố cục giao diện (layout overflow) tự động.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 4 -->
+                <div class="timeline-item" onclick="toggleTimelineItem(this)">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-title">Phase 4: Tự học Nâng cao & Tự động Đóng gói ZIP Bàn giao</div>
+                            <span class="timeline-date">Q4 - Lập kế hoạch</span>
+                        </div>
+                        <p>Mở rộng cơ sở dữ liệu kinh nghiệm tự rút ra sau các lần sửa code lỗi, tích hợp quy trình phê duyệt tri thức HITL và nén mã nguồn.</p>
+                        
+                        <div class="timeline-body">
+                            <strong style="color: var(--accent-cyan); display:block; margin-bottom:5px;">Nhiệm vụ cốt lõi:</strong>
+                            <ul class="deliverables-list">
+                                <li>Xây dựng phân hệ kinh nghiệm lưu vết (Self-Learning Experience DB) để ghi nhận những tệp lỗi biên dịch và các dòng code vá thành công.</li>
+                                <li>Hoàn thiện dashboard duyệt tri thức (HITL Approval Queue) giúp quản trị viên lọc, phê duyệt các kinh nghiệm chạy task của agent.</li>
+                                <li>Đóng gói quy trình tự động zip toàn bộ mã nguồn sạch của Flutter MVP + API Backend để bàn giao ngay khi pipeline báo PASS.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risks & Mitigation Section -->
+        <div class="card">
+            <h2>Quản Trị Rủi Ro & Giải Pháp Khắc Phục</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rủi Ro Kỹ Thuật</th>
+                            <th>Mức Độ</th>
+                            <th>Giải Pháp Khắc Phục</th>
+                            <th>Trạng Thái</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:600; color: #fff;">Lỗi biên dịch Flutter phức tạp ngoài tầm vá của Refactor Agent</td>
+                            <td><span class="severity-badge high">Cao</span></td>
+                            <td>Thiết lập mức giới hạn sửa lỗi tối đa (max_repair_attempts) và tự động kích hoạt chốt chặn dừng (Checkpoint) để kỹ sư con người can thiệp sửa đổi.</td>
+                            <td style="color: var(--accent-green);">Đã giải quyết</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:600; color: #fff;">Chi phí token LLM tăng cao bất thường khi chạy song song nhiều pipelines</td>
+                            <td><span class="severity-badge medium">Trung bình</span></td>
+                            <td>Bộ đếm CostTracker chủ động tính toán hạn mức ngân sách (budget boundaries) cho từng dự án, tự động cảnh báo và ngắt tiến trình nếu vượt ngưỡng.</td>
+                            <td style="color: var(--accent-green);">Đã giải quyết</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:600; color: #fff;">Nguy cơ rò rỉ mã độc hoặc lệnh shell nguy hại từ code do Dev Agent tự sinh</td>
+                            <td><span class="severity-badge high">Cao</span></td>
+                            <td>Ép buộc tất cả các tệp biên dịch chạy trong Docker Container cô lập hoàn toàn, chặn đứng quyền truy cập shell gốc của host qua hệ thống RBAC chặt chẽ.</td>
+                            <td style="color: var(--accent-yellow);">Đang tối ưu</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Cost Estimator Widget -->
+        <div class="estimator-card">
+            <h2 style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; margin-bottom: 20px;">
+                Bộ Ước Tính Token & Chi Phí API (Mô phỏng tương tác)
+            </h2>
+            <div class="estimator-grid">
+                <div class="slider-container">
+                    <div class="slider-label">
+                        <span>Số lượng nhiệm vụ lập trình (Tasks)</span>
+                        <span id="tasks-val" style="color: var(--accent-cyan);">10 tasks</span>
+                    </div>
+                    <input type="range" id="tasks-slider" min="1" max="50" value="10" oninput="updateEstimate()">
+
+                    <div class="slider-label">
+                        <span>Số lần sửa lỗi trung bình (Fix attempts)</span>
+                        <span id="fixes-val" style="color: var(--accent-cyan);">2 lần</span>
+                    </div>
+                    <input type="range" id="fixes-slider" min="0" max="5" value="2" oninput="updateEstimate()">
+                </div>
+
+                <div class="estimator-result">
+                    <span style="font-size: 0.9rem; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.05em;">Ước tính chi phí tích lũy</span>
+                    <div class="result-val" id="cost-val">$7.20</div>
+                    <div class="result-desc" id="token-val">Khoảng ~240,000 Tokens (Sử dụng OpenRouter GPT-4o / Claude-3.5 Sonnet)</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function toggleTimelineItem(element) {
+            // Check if element is already active
+            const isActive = element.classList.contains('active');
+            
+            // Close all timeline items
+            const items = document.querySelectorAll('.timeline-item');
+            items.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // If it wasn't active, activate it
+            if (!isActive) {
+                element.classList.add('active');
+            }
+        }
+
+        function updateEstimate() {
+            const tasks = parseInt(document.getElementById('tasks-slider').value);
+            const fixes = parseInt(document.getElementById('fixes-slider').value);
+            
+            document.getElementById('tasks-val').innerText = tasks + " tasks";
+            document.getElementById('fixes-val').innerText = fixes + " lần";
+            
+            // Basic estimation formula: each task takes ~15k tokens base + 10k tokens per fix
+            const tokensPerTask = 15000 + (fixes * 10000);
+            const totalTokens = tasks * tokensPerTask;
+            
+            // Assume $0.03 per 1K tokens average
+            const cost = (totalTokens / 1000) * 0.03;
+            
+            document.getElementById('cost-val').innerText = "$" + cost.toFixed(2);
+            document.getElementById('token-val').innerText = "Khoảng ~" + totalTokens.toLocaleString() + " Tokens (Sử dụng OpenRouter GPT-4o / Claude-3.5 Sonnet)";
+        }
+    </script>
+</body>
+</html>
