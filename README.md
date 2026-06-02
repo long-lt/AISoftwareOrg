@@ -135,8 +135,14 @@ unified-ai-software-org/
 ├── workflows/               # Workflow definitions and pipeline wrappers
 ├── workspace/               # Generated apps, job outputs, and temporary workspaces
 ├── docs/                    # Technical documentation
+├── scripts/                 # Utility scripts
+├── logs/                    # Application logs (gitignored)
+├── .env.example             # Environment configuration template
 ├── requirements.txt         # Python dependencies
-└── docker-compose.yml       # Redis and local service orchestration
+├── pyproject.toml           # Python project config (pytest + ruff)
+├── Makefile                 # Development commands
+├── docker-compose.yml       # Redis and local service orchestration
+└── CLAUDE.md                # AI agent development instructions
 ```
 
 ---
@@ -150,6 +156,28 @@ Before running the project, install:
 * Docker
 * Redis, if using the RQ queue backend
 * Flutter SDK, if running full Flutter validation locally
+
+---
+
+## Quick Start
+
+```bash
+# 1. Clone & configure
+git clone <repo-url> && cd AISoftwareOrg
+cp .env.example .env
+# Edit .env — set LLM_API_KEY
+
+# 2. Install & run
+make setup    # Create venv + install Python & Node deps
+make dev      # Start backend at http://localhost:8000
+
+# 3. Frontend (separate terminal)
+make frontend # Dev server at http://localhost:5173
+# Or build for production:
+make build    # Then visit http://localhost:8000
+```
+
+Run `make help` to see all available commands.
 
 ---
 
@@ -409,10 +437,15 @@ Technical documentation is available in the `docs/` directory.
 
 Recommended documents:
 
-* [Developer Guide](./docs/CLAUDE.md)
+* [Developer Guide](./CLAUDE.md)
 * [Project Plan](./docs/project_plane.md)
 * [Changelog](./docs/changelog.md)
 * [Architecture Overview](./docs/architecture_overview.html)
+* [Architecture Reference](./docs/architecture.md)
+* [API Contract](./docs/api_contract.md)
+* [Development Guide](./docs/development_guide.md)
+* [Deployment Guide](./docs/deployment_guide.md)
+* [Agent Workflow](./docs/agent_workflow.md)
 * [Improvement Roadmap](./docs/improvement_roadmap.html)
 * [Admin Manual](./docs/admin_manual.html)
 
