@@ -1,0 +1,25 @@
+id: database.supabase
+name: Supabase Database Module
+type: database
+
+supported_project_types:
+  - fullstack_saas
+  - mobile_app
+  - web_app
+
+required_inputs:
+  - docs/product_spec.json
+  - docs/data_model.json
+
+produced_outputs:
+  - source/infra/supabase/schema.sql
+  - source/infra/supabase/seed.sql
+  - docs/database_schema.sql
+  - docs/env_contract.md
+
+quality_commands:
+  - echo "Supabase schema validation placeholder"
+
+dependencies: []
+
+default_template: supabase_project

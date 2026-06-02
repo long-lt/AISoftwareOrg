@@ -33,6 +33,7 @@ from dashboard.routers import (
     projects,
     agents,
     jobs,
+    factory,
 )
 
 settings = AppSettings()
@@ -81,6 +82,7 @@ def create_app(
     app.include_router(projects.router, prefix="/api/projects", tags=["Projects"])
     app.include_router(agents.router, prefix="/api", tags=["Agents"])
     app.include_router(jobs.router, prefix="/api/jobs", tags=["Jobs"])
+    app.include_router(factory.router, prefix="/api", tags=["factory"])
 
     # 3. Health & Readiness
     @app.get("/health")

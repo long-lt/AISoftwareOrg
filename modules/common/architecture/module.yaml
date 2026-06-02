@@ -1,0 +1,25 @@
+id: common.architecture
+name: Architecture Module
+type: common
+
+supported_project_types:
+  - mobile_app
+  - web_app
+  - backend_api
+  - fullstack_saas
+  - admin_dashboard
+  - cli_tool
+  - automation_worker
+  - ai_agent_system
+  - docs_only
+
+required_inputs:
+  - docs/product_spec.json
+
+produced_outputs:
+  - docs/architecture.md
+  - docs/folder_structure.md
+  - docs/dependency_plan.md
+
+quality_commands: []
+dependencies: []

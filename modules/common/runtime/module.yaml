@@ -1,0 +1,23 @@
+id: common.runtime
+name: Runtime Verification Module
+type: quality
+
+supported_project_types:
+  - mobile_app
+  - web_app
+  - backend_api
+  - fullstack_saas
+  - admin_dashboard
+  - cli_tool
+  - automation_worker
+  - ai_agent_system
+
+required_inputs:
+  - source/
+
+produced_outputs:
+  - docs/runtime_report.md
+  - docs/runtime_summary.json
+
+quality_commands: []
+dependencies: []

@@ -1,0 +1,31 @@
+id: mobile.flutter
+name: Flutter Mobile App Module
+type: mobile
+
+supported_project_types:
+  - mobile_app
+  - fullstack_saas
+
+required_inputs:
+  - docs/product_spec.json
+  - docs/architecture.md
+  - docs/design.md
+  - docs/api_contract.md
+
+produced_outputs:
+  - source/mobile/pubspec.yaml
+  - source/mobile/lib/main.dart
+  - source/mobile/lib/app.dart
+  - source/mobile/lib/core/
+  - source/mobile/lib/features/
+
+quality_commands:
+  - flutter pub get
+  - dart format --set-exit-if-changed .
+  - flutter analyze
+  - flutter test
+  - flutter build web
+
+dependencies: []
+
+default_template: flutter_clean_architecture

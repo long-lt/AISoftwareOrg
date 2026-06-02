@@ -1,0 +1,24 @@
+id: common.brief
+name: Project Brief Module
+type: common
+
+supported_project_types:
+  - mobile_app
+  - web_app
+  - backend_api
+  - fullstack_saas
+  - admin_dashboard
+  - cli_tool
+  - automation_worker
+  - ai_agent_system
+  - docs_only
+
+required_inputs: []
+
+produced_outputs:
+  - docs/input.json
+  - docs/app_brief.md
+  - docs/project_context.md
+
+quality_commands: []
+dependencies: []

@@ -1,0 +1,26 @@
+id: common.release_review
+name: Release Review Module
+type: quality
+
+supported_project_types:
+  - mobile_app
+  - web_app
+  - backend_api
+  - fullstack_saas
+  - admin_dashboard
+  - cli_tool
+  - automation_worker
+  - ai_agent_system
+  - docs_only
+
+required_inputs:
+  - docs/test_report.md
+  - docs/security_report.md
+
+produced_outputs:
+  - docs/final_review.md
+  - docs/release_checklist.md
+  - docs/handoff_notes.md
+
+quality_commands: []
+dependencies: []

@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend checks
+    runs-on: ubuntu-latest
+
+    env:
+      APP_ENV: development
+      DASHBOARD_SECRET: test-secret
+      ADMIN_API_KEY: test-admin-key
+      LLM_PROVIDER: openrouter
+      LLM_API_KEY: test-key
+      LLM_MODEL: google/gemini-2.5-flash
+      JOB_QUEUE_BACKEND: thread
+      FACTORY_PIPELINE_MODE: modular
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run Ruff
+        run: |
+          ruff check .
+
+      - name: Run Pytest
+        run: |
+          pytest

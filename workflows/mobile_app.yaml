@@ -1,0 +1,37 @@
+id: mobile_app
+name: Mobile App Workflow
+description: Generate a mobile application with optional backend/database support.
+
+phases:
+  - id: 01_create_brief
+    module: common.brief
+
+  - id: 02_business_analysis
+    module: common.business_analysis
+
+  - id: 03_architecture_design
+    module: common.architecture
+
+  - id: 04_uiux_design
+    module: common.uiux
+
+  - id: 05_mobile_generation
+    module: mobile.selected
+
+  - id: 06_static_qa
+    module: common.qa
+
+  - id: 07_repair_loop
+    module: common.repair
+
+  - id: 08_runtime_test
+    module: common.runtime
+
+  - id: 09_security_audit
+    module: common.security
+
+  - id: 10_release_review
+    module: common.release_review
+
+  - id: 11_export_package
+    module: common.export

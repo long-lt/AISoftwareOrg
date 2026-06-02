@@ -1,0 +1,25 @@
+id: common.export
+name: Export Package Module
+type: export
+
+supported_project_types:
+  - mobile_app
+  - web_app
+  - backend_api
+  - fullstack_saas
+  - admin_dashboard
+  - cli_tool
+  - automation_worker
+  - ai_agent_system
+  - docs_only
+
+required_inputs:
+  - source/
+  - docs/
+
+produced_outputs:
+  - exports/source.zip
+  - docs/export_report.md
+
+quality_commands: []
+dependencies: []

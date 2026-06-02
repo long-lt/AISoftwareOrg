@@ -118,8 +118,14 @@ def test_job_phases_endpoint_reads_database_progress(
     finish_phase("api-progress", "ba", "passed")
     start_phase("api-progress", "dev")
 
+    import time
+    from dashboard.jwt_utils import encode_hs256
+    now = int(time.time())
+    token = encode_hs256({"team_id": "test", "role": "admin", "iat": now, "exp": now + 3600}, "phase2-secret")
+    headers = {"Authorization": f"Bearer {token}"}
+
     client = TestClient(create_app(secret_key="phase2-secret"))
-    response = client.get("/api/jobs/api-progress/phases")
+    response = client.get("/api/jobs/api-progress/phase-status", headers=headers)
 
     assert response.status_code == 200, response.text
     body = response.json()
@@ -188,6 +194,21 @@ def test_orchestrator_records_phase_lifecycle(
         orchestrator,
         "write_review_documents",
         lambda app_input, docs_dir, source_dir: write_doc(app_input, docs_dir, "final_review.md"),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "run_qa_checks",
+        lambda app_input, docs_dir, source_dir, include_release_build=False: write_doc(app_input, docs_dir, "test_report.md"),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "run_runtime_verification",
+        lambda app_input, docs_dir, source_dir: write_doc(app_input, docs_dir, "runtime_report.md"),
+    )
+    monkeypatch.setattr(
+        orchestrator,
+        "write_security_documents",
+        lambda app_input, docs_dir, source_dir, backend_dir: write_doc(app_input, docs_dir, "security_report.md"),
     )
     monkeypatch.setattr(orchestrator, "_pipeline_gate_error", lambda docs_dir: None)
     monkeypatch.setattr(

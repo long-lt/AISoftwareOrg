@@ -1,0 +1,26 @@
+id: common.business_analysis
+name: Business Analysis Module
+type: common
+
+supported_project_types:
+  - mobile_app
+  - web_app
+  - backend_api
+  - fullstack_saas
+  - admin_dashboard
+  - cli_tool
+  - automation_worker
+  - ai_agent_system
+  - docs_only
+
+required_inputs:
+  - docs/app_brief.md
+
+produced_outputs:
+  - docs/requirements.md
+  - docs/user_stories.md
+  - docs/acceptance_criteria.md
+  - docs/product_spec.json
+
+quality_commands: []
+dependencies: []

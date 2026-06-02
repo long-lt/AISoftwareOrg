@@ -68,6 +68,10 @@ def _run_recorded_phase(
     slug = _job_slug(app_input)
     should_record = _can_record_job(slug)
     _check_cancellation(slug)
+    
+    from dashboard.database import start_phase_attempt, finish_phase_attempt
+    attempt = start_phase_attempt(slug, phase)
+    
     if should_record:
         start_phase(slug, phase)
     try:
@@ -76,13 +80,17 @@ def _run_recorded_phase(
     except JobCancelledError as exc:
         if should_record:
             cancel_phase(slug, phase, str(exc))
+        finish_phase_attempt(slug, phase, attempt, "cancelled", error=str(exc))
         raise
     except Exception as exc:
         if should_record:
             fail_phase(slug, phase, str(exc))
+        finish_phase_attempt(slug, phase, attempt, "failed", error=str(exc))
         raise
     if should_record:
         pass_phase(slug, phase, output_files=_relative_outputs(paths, app_dir))
+        
+    finish_phase_attempt(slug, phase, attempt, "passed", output_files=_relative_outputs(paths, app_dir))
     return paths
 
 
@@ -142,12 +150,35 @@ def _run_repair_loop(
     Returns paths from QA checks and refactor runs (excluding runtime/security)."""
     written_paths: list[Path] = []
     events: list[dict[str, str]] = []
+    slug = _job_slug(app_input)
+    from dashboard.database import start_phase_attempt, finish_phase_attempt
 
     for attempt in range(max_attempts + 1):
-        written_paths.extend(run_qa_checks(app_input, docs_dir, source_dir, include_release_build=False))
-        qa_status = _read_status(docs_dir / "test_report.md")
-        production_qa_status = _read_status(docs_dir / "production_qa_report.md")
-        qa_passed = qa_status == "PASS" and production_qa_status == "PASS"
+        qa_attempt = start_phase_attempt(slug, "07_static_qa")
+        try:
+            qa_paths = run_qa_checks(app_input, docs_dir, source_dir, include_release_build=False)
+            written_paths.extend(qa_paths)
+            qa_status = _read_status(docs_dir / "test_report.md")
+            production_qa_status = _read_status(docs_dir / "production_qa_report.md")
+            qa_passed = qa_status == "PASS" and production_qa_status == "PASS"
+            
+            finish_phase_attempt(
+                slug,
+                "07_static_qa",
+                qa_attempt,
+                "passed" if qa_passed else "failed",
+                output_files=_relative_outputs(qa_paths, docs_dir.parent),
+            )
+        except Exception as exc:
+            finish_phase_attempt(
+                slug,
+                "07_static_qa",
+                qa_attempt,
+                "failed",
+                error=str(exc),
+            )
+            raise
+
         events.append(
             {
                 "attempt": str(attempt),
@@ -160,8 +191,29 @@ def _run_repair_loop(
             break
         if attempt >= max_attempts:
             break
-        written_paths.extend(run_refactor(app_input, docs_dir, source_dir))
-        refactor_status = _read_status(docs_dir / "refactor_report.md")
+
+        refac_attempt = start_phase_attempt(slug, "08_refactor_repair")
+        try:
+            refac_paths = run_refactor(app_input, docs_dir, source_dir)
+            written_paths.extend(refac_paths)
+            refactor_status = _read_status(docs_dir / "refactor_report.md")
+            finish_phase_attempt(
+                slug,
+                "08_refactor_repair",
+                refac_attempt,
+                "passed",
+                output_files=_relative_outputs(refac_paths, docs_dir.parent),
+            )
+        except Exception as exc:
+            finish_phase_attempt(
+                slug,
+                "08_refactor_repair",
+                refac_attempt,
+                "failed",
+                error=str(exc),
+            )
+            raise
+
         events.append(
             {
                 "attempt": str(attempt + 1),
@@ -172,12 +224,33 @@ def _run_repair_loop(
         )
 
     if not (docs_dir / "refactor_report.md").exists():
-        written_paths.extend(run_refactor(app_input, docs_dir, source_dir))
+        refac_attempt = start_phase_attempt(slug, "08_refactor_repair")
+        try:
+            refac_paths = run_refactor(app_input, docs_dir, source_dir)
+            written_paths.extend(refac_paths)
+            refactor_status = _read_status(docs_dir / "refactor_report.md")
+            finish_phase_attempt(
+                slug,
+                "08_refactor_repair",
+                refac_attempt,
+                "passed",
+                output_files=_relative_outputs(refac_paths, docs_dir.parent),
+            )
+        except Exception as exc:
+            finish_phase_attempt(
+                slug,
+                "08_refactor_repair",
+                refac_attempt,
+                "failed",
+                error=str(exc),
+            )
+            raise
+
         events.append(
             {
                 "attempt": "final",
                 "phase": "refactor",
-                "result": _read_status(docs_dir / "refactor_report.md"),
+                "result": refactor_status,
                 "detail": "Final formatting and analyze verification.",
             }
         )

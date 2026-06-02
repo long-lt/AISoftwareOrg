@@ -1,0 +1,22 @@
+id: common.uiux
+name: UI UX Design Module
+type: common
+
+supported_project_types:
+  - mobile_app
+  - web_app
+  - fullstack_saas
+  - admin_dashboard
+
+required_inputs:
+  - docs/product_spec.json
+  - docs/architecture.md
+
+produced_outputs:
+  - docs/design.md
+  - docs/screen_list.md
+  - docs/component_spec.md
+  - docs/ui_states.md
+
+quality_commands: []
+dependencies: []

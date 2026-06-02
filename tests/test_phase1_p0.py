@@ -109,7 +109,13 @@ def test_cancel_endpoint_marks_cancel_requested(
         app_dir=GENERATED_APPS_DIR / "cancel-me",
     )
 
-    response = client.post("/api/jobs/cancel-me/cancel")
+    import time
+    from dashboard.jwt_utils import encode_hs256
+    now = int(time.time())
+    token = encode_hs256({"team_id": "test", "role": "admin", "iat": now, "exp": now + 3600}, SECRET)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response = client.post("/api/jobs/cancel-me/cancel", headers=headers)
 
     assert response.status_code == 200, response.text
     assert response.json() == {
@@ -159,6 +165,8 @@ def test_queue_manager_marks_cancelled_jobs_cancelled_not_failed(
     from agents.flutter_factory.orchestrator import JobCancelledError
     from dashboard import queue_manager
     from dashboard.database import get_job
+
+    monkeypatch.setattr(queue_manager, "FACTORY_PIPELINE_MODE", "flutter_legacy")
 
     def cancelled_pipeline(_payload, _app_dir):
         raise JobCancelledError("Job was cancelled")

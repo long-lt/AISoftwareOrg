@@ -20,7 +20,7 @@ Hãy thực hiện các bước sau trong terminal để chạy dự án cục b
 
 ### Bước 1: Di chuyển vào thư mục dự án
 ```bash
-cd /Users/long/Desktop/AI_/unified-ai-software-dashboard
+cd frontend
 ```
 
 ### Bước 2: Cài đặt các thư viện phụ thuộc (Dependencies)
@@ -93,4 +93,4 @@ Hệ thống đã thiết lập sẵn cơ chế kết nối API realtime thông 
 ---
 
 ## 📄 Báo cáo Kỹ thuật Đính kèm
-Để biết thêm thông tin chi tiết về sơ đồ luồng dữ liệu API và cơ chế hoạt động chi tiết của mã nguồn, hãy mở trực tiếp tệp [report.html](file:///Users/long/Desktop/AI_/unified-ai-software-dashboard/report.html) trong thư mục dự án.
+Để biết thêm thông tin chi tiết về sơ đồ luồng dữ liệu API và cơ chế hoạt động chi tiết của mã nguồn, hãy mở trực tiếp tệp [report.html](report.html) trong thư mục dự án.

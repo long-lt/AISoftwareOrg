@@ -1,0 +1,28 @@
+id: backend.fastapi
+name: FastAPI Backend Module
+type: backend
+
+supported_project_types:
+  - backend_api
+  - fullstack_saas
+  - mobile_app
+
+required_inputs:
+  - docs/product_spec.json
+  - docs/api_contract.md
+  - docs/data_model.json
+
+produced_outputs:
+  - source/backend/requirements.txt
+  - source/backend/main.py
+  - source/backend/app/
+  - source/backend/tests/
+
+quality_commands:
+  - python -m compileall source/backend
+  - ruff check source/backend
+  - pytest source/backend/tests
+
+dependencies: []
+
+default_template: fastapi_service

@@ -1,0 +1,40 @@
+id: fullstack_saas
+name: Fullstack SaaS Workflow
+description: Generate a fullstack SaaS product with frontend, backend, database, QA, security, and export.
+
+phases:
+  - id: 01_create_brief
+    module: common.brief
+
+  - id: 02_business_analysis
+    module: common.business_analysis
+
+  - id: 03_system_architecture
+    module: common.architecture
+
+  - id: 04_database_design
+    module: database.selected
+
+  - id: 05_backend_generation
+    module: backend.selected
+
+  - id: 06_frontend_generation
+    module: frontend.selected
+
+  - id: 07_static_qa
+    module: common.qa
+
+  - id: 08_repair_loop
+    module: common.repair
+
+  - id: 09_runtime_test
+    module: common.runtime
+
+  - id: 10_security_audit
+    module: common.security
+
+  - id: 11_release_review
+    module: common.release_review
+
+  - id: 12_export_package
+    module: common.export

@@ -1,0 +1,24 @@
+id: common.repair
+name: Repair Loop Module
+type: quality
+
+supported_project_types:
+  - mobile_app
+  - web_app
+  - backend_api
+  - fullstack_saas
+  - admin_dashboard
+  - cli_tool
+  - automation_worker
+  - ai_agent_system
+
+required_inputs:
+  - docs/bug_list.md
+  - source/
+
+produced_outputs:
+  - docs/refactor_report.md
+  - docs/repair_history.md
+
+quality_commands: []
+dependencies: []

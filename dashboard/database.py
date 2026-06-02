@@ -236,6 +236,33 @@ def _initialize_schema(connection: sqlite3.Connection) -> None:
         """
     )
     _add_column_if_missing(connection, "system_settings", "updated_at TEXT NOT NULL DEFAULT ''")
+    
+    # 5. Create job_phase_attempts table
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS job_phase_attempts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            job_slug TEXT NOT NULL,
+            phase TEXT NOT NULL,
+            attempt INTEGER NOT NULL,
+            status TEXT NOT NULL,
+            started_at TEXT,
+            finished_at TEXT,
+            error TEXT,
+            output_files_json TEXT,
+            logs_path TEXT,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )
+        """
+    )
+    connection.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_job_phase_attempts_job_phase
+        ON job_phase_attempts(job_slug, phase, attempt)
+        """
+    )
+    
     _seed_defaults(connection)
 
 
@@ -252,6 +279,13 @@ def _connect() -> sqlite3.Connection:
 
 
 def _seed_defaults(connection: sqlite3.Connection) -> None:
+    try:
+        row = connection.execute("SELECT COUNT(*) FROM agents_config").fetchone()
+        if row and row[0] > 0:
+            return
+    except Exception:
+        pass
+
     agents = [
         (
             "ba",
@@ -965,3 +999,137 @@ def _quality_gate_status(job: dict[str, Any] | None) -> str:
     if job.get("status") == "failed":
         return "failed"
     return "pending"
+
+
+def next_phase_attempt(job_slug: str, phase: str) -> int:
+    phase_id = _canonical_phase(phase)
+    assert phase_id is not None
+
+    with _connect() as connection:
+        row = connection.execute(
+            """
+            SELECT COALESCE(MAX(attempt), 0) AS max_attempt
+            FROM job_phase_attempts
+            WHERE job_slug = ? AND phase = ?
+            """,
+            (job_slug, phase_id),
+        ).fetchone()
+
+    return int(row["max_attempt"] or 0) + 1
+
+
+def start_phase_attempt(job_slug: str, phase: str, attempt: int | None = None) -> int:
+    phase_id = _canonical_phase(phase)
+    assert phase_id is not None
+
+    selected_attempt = attempt or next_phase_attempt(job_slug, phase_id)
+
+    def operation() -> int:
+        with _connect() as connection:
+            timestamp = _now()
+            connection.execute(
+                """
+                INSERT INTO job_phase_attempts (
+                    job_slug,
+                    phase,
+                    attempt,
+                    status,
+                    started_at,
+                    finished_at,
+                    error,
+                    output_files_json,
+                    logs_path,
+                    created_at,
+                    updated_at
+                )
+                VALUES (?, ?, ?, 'running', ?, NULL, NULL, '[]', NULL, ?, ?)
+                """,
+                (
+                    job_slug,
+                    phase_id,
+                    selected_attempt,
+                    timestamp,
+                    timestamp,
+                    timestamp,
+                ),
+            )
+            connection.commit()
+
+        return selected_attempt
+
+    return _with_write_retry(operation)
+
+
+def finish_phase_attempt(
+    job_slug: str,
+    phase: str,
+    attempt: int,
+    status: str,
+    *,
+    error: str | None = None,
+    output_files: list[str] | tuple[str, ...] | None = None,
+    logs_path: str | None = None,
+) -> None:
+    phase_id = _canonical_phase(phase)
+    assert phase_id is not None
+    _validate_phase_status(status)
+
+    normalized_outputs = [str(path) for path in (output_files or [])]
+
+    def operation() -> None:
+        with _connect() as connection:
+            timestamp = _now()
+            connection.execute(
+                """
+                UPDATE job_phase_attempts
+                SET status = ?,
+                    finished_at = ?,
+                    error = ?,
+                    output_files_json = ?,
+                    logs_path = ?,
+                    updated_at = ?
+                WHERE job_slug = ? AND phase = ? AND attempt = ?
+                """,
+                (
+                    status,
+                    timestamp,
+                    error,
+                    json.dumps(normalized_outputs),
+                    logs_path,
+                    timestamp,
+                    job_slug,
+                    phase_id,
+                    attempt,
+                ),
+            )
+            connection.commit()
+
+    _with_write_retry(operation)
+
+
+def list_phase_attempts(job_slug: str, phase: str | None = None) -> list[dict[str, Any]]:
+    with _connect() as connection:
+        if phase:
+            phase_id = _canonical_phase(phase)
+            assert phase_id is not None
+            rows = connection.execute(
+                """
+                SELECT *
+                FROM job_phase_attempts
+                WHERE job_slug = ? AND phase = ?
+                ORDER BY phase ASC, attempt ASC
+                """,
+                (job_slug, phase_id),
+            ).fetchall()
+        else:
+            rows = connection.execute(
+                """
+                SELECT *
+                FROM job_phase_attempts
+                WHERE job_slug = ?
+                ORDER BY phase ASC, attempt ASC
+                """,
+                (job_slug,),
+            ).fetchall()
+
+    return [dict(row) for row in rows]

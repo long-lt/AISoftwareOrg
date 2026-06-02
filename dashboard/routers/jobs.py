@@ -6,25 +6,24 @@ Router for Flutter Generation Jobs, cancel/download actions and files browser.
 from __future__ import annotations
 
 import shutil
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
-from dashboard.routers.auth import require_auth
-
+from dashboard.routers.auth import require_auth, require_role
 from dashboard.database import (
     GENERATED_APPS_DIR,
-    delete_job_record,
     list_jobs,
     get_job,
-    list_job_logs,
     phase_status,
-    request_job_cancellation,
+    list_job_phases,
+    list_phase_attempts,
     _upsert_job,
     slugify,
+    _connect,
 )
 from dashboard.queue_manager import (
     _enqueue_thread,
@@ -33,35 +32,33 @@ from dashboard.queue_manager import (
 )
 
 router = APIRouter()
-CODE_ALLOWED_ROOTS = {"source", "docs", "backend"}
-CODE_MAX_FILE_BYTES = 512_000
-CODE_DENIED_EXTENSIONS = {
-    ".key", ".pem", ".sqlite", ".sqlite3", ".db",
-}
-CODE_DENIED_NAMES = {
-    ".env", ".env.local", ".env.production", ".env.staging",
-    "secrets.json", "secrets.yaml", "secrets.yml",
-    "credentials.json", "credentials.yaml", "credentials.yml",
-}
 
 
 class GenerateRequest(BaseModel):
     name: str = Field(min_length=1)
     description: str = Field(min_length=1)
+
+    # New modular fields
+    project_type: str | None = None
+    targets: list[str] | None = None
+    stack: dict[str, str] | None = None
+
+    # Legacy fields
     platform: str = "android,ios"
     style: str = "modern"
     backend: str = "none"
-    features: str = ""
+
+    features: str | list[str] = ""
     slug: str = ""
 
 
 @router.get("")
-def get_all_jobs() -> list[dict[str, Any]]:
+def get_all_jobs(_auth: dict = Depends(require_auth)) -> list[dict[str, Any]]:
     return list_jobs()
 
 
 @router.get("/{slug}")
-def get_single_job(slug: str) -> dict[str, Any]:
+def get_single_job(slug: str, _auth: dict = Depends(require_auth)) -> dict[str, Any]:
     job = get_job(slug)
     if job is None:
         raise HTTPException(status_code=404, detail="Job not found")
@@ -69,16 +66,48 @@ def get_single_job(slug: str) -> dict[str, Any]:
 
 
 @router.get("/{slug}/phases")
-def get_job_phases(slug: str) -> dict[str, str]:
+def get_job_phases(
+    slug: str,
+    _auth: dict = Depends(require_auth),
+) -> list[dict[str, Any]]:
+    if get_job(slug) is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return list_job_phases(slug)
+
+
+@router.get("/{slug}/phase-status")
+def get_job_phase_status(
+    slug: str,
+    _auth: dict = Depends(require_auth),
+) -> dict[str, str]:
     if get_job(slug) is None:
         raise HTTPException(status_code=404, detail="Job not found")
     return phase_status(slug)
 
 
+@router.get("/{slug}/phase-attempts")
+def get_job_phase_attempts(
+    slug: str,
+    phase: str | None = None,
+    _auth: dict = Depends(require_auth),
+) -> list[dict[str, Any]]:
+    if get_job(slug) is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return list_phase_attempts(slug, phase)
+
+
 @router.delete("/{slug}")
-def delete_single_job(slug: str, purge: bool = Query(False), _auth: dict = Depends(require_auth)) -> dict[str, Any]:
-    if not delete_job_record(slug):
-        raise HTTPException(status_code=404, detail=f"Job '{slug}' không tồn tại")
+def delete_single_job(
+    slug: str,
+    purge: bool = Query(False),
+    _auth: dict = Depends(require_role("admin")),
+) -> dict[str, Any]:
+    with _connect() as conn:
+        cur = conn.execute("DELETE FROM jobs WHERE slug = ?", (slug,))
+        if cur.rowcount == 0:
+            raise HTTPException(
+                status_code=404, detail=f"Job '{slug}' không tồn tại"
+            )
     purged_path = None
     if purge:
         app_dir = GENERATED_APPS_DIR / slug
@@ -89,11 +118,20 @@ def delete_single_job(slug: str, purge: bool = Query(False), _auth: dict = Depen
 
 
 @router.post("/{slug}/cancel")
-def cancel_single_job(slug: str, _auth: dict = Depends(require_auth)) -> dict[str, Any]:
-    if not request_job_cancellation(slug):
-        existing = get_job(slug)
-        if existing is None:
-            raise HTTPException(status_code=404, detail=f"Job '{slug}' không tồn tại")
+def cancel_single_job(
+    slug: str,
+    _auth: dict = Depends(require_auth),
+) -> dict[str, Any]:
+    from dashboard.database import request_job_cancellation, get_job
+    
+    existing = get_job(slug)
+    if existing is None:
+        raise HTTPException(
+            status_code=404, detail=f"Job '{slug}' không tồn tại"
+        )
+        
+    success = request_job_cancellation(slug)
+    if not success:
         raise HTTPException(
             status_code=409,
             detail=(
@@ -101,45 +139,52 @@ def cancel_single_job(slug: str, _auth: dict = Depends(require_auth)) -> dict[st
                 "— không thể huỷ (chỉ queued/running mới huỷ được)"
             ),
         )
-    return {"slug": slug, "status": "cancel_requested", "cancel_requested": True}
-
-
-@router.get("/{slug}/logs")
-def get_job_logs(
-    slug: str,
-    phase: str | None = Query(default=None),
-    level: str | None = Query(default=None),
-) -> list[dict[str, Any]]:
-    if get_job(slug) is None:
-        raise HTTPException(status_code=404, detail="Job not found")
-    return list_job_logs(slug, phase=phase, level=level)
+    return {
+        "slug": slug,
+        "status": "cancel_requested",
+        "cancel_requested": True,
+    }
 
 
 @router.post("", status_code=202)
 def create_generation_job(payload: GenerateRequest, _auth: dict = Depends(require_auth)) -> dict[str, Any]:
-    slug = payload.slug or slugify(payload.name)
-    features = [f.strip() for f in payload.features.split(",") if f.strip()]
+    from factory_core.request_adapter import normalize_factory_request
+
+    raw_payload = payload.model_dump()
+    factory_request = normalize_factory_request(raw_payload)
+
+    slug = factory_request.slug or slugify(factory_request.name)
+    factory_request.slug = slug
+
+    features = factory_request.features
     if not features:
         features = ["todo", "dashboard", "settings"]
+        factory_request.features = features
 
     app_dir = GENERATED_APPS_DIR / slug
+
     _upsert_job(
         slug=slug,
-        name=payload.name,
-        description=payload.description,
+        name=factory_request.name,
+        description=factory_request.description,
         status="queued",
         features=features,
         app_dir=app_dir,
     )
 
     job_payload = {
-        "name": payload.name,
-        "description": payload.description,
-        "platform": payload.platform,
-        "style": payload.style,
-        "backend": payload.backend,
-        "features": features,
+        "name": factory_request.name,
+        "description": factory_request.description,
+        "project_type": factory_request.project_type,
+        "targets": factory_request.targets,
+        "stack": factory_request.stack,
+        "features": factory_request.features,
         "slug": slug,
+
+        # Keep legacy compatibility
+        "platform": raw_payload.get("platform", "android,ios"),
+        "style": raw_payload.get("style", "modern"),
+        "backend": raw_payload.get("backend", "none"),
     }
 
     if QUEUE_BACKEND == "rq":
@@ -148,8 +193,8 @@ def create_generation_job(payload: GenerateRequest, _auth: dict = Depends(requir
         except Exception as error:
             _upsert_job(
                 slug=slug,
-                name=payload.name,
-                description=payload.description,
+                name=factory_request.name,
+                description=factory_request.description,
                 status="failed",
                 features=features,
                 app_dir=app_dir,
@@ -164,8 +209,24 @@ def create_generation_job(payload: GenerateRequest, _auth: dict = Depends(requir
     return job
 
 
+@router.get("/{slug}/logs")
+def get_job_logs_endpoint(
+    slug: str,
+    phase: str | None = Query(None),
+    level: str | None = Query(None),
+    _auth: dict = Depends(require_auth),
+) -> list[dict[str, Any]]:
+    if get_job(slug) is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+    from dashboard.services.job_log_service import tail_job_logs
+    return tail_job_logs(slug, phase=phase, level=level)
+
+
 @router.get("/{slug}/download")
-def download_job_source(slug: str):
+def download_job_source(
+    slug: str,
+    _auth: dict = Depends(require_auth),
+):
     job = get_job(slug)
     if job is None:
         raise HTTPException(status_code=404, detail="Job not found")
@@ -180,13 +241,17 @@ def download_job_source(slug: str):
 
 
 @router.get("/{slug}/code/tree")
-def get_job_code_tree(slug: str) -> list[dict[str, Any]]:
+def get_job_code_tree(
+    slug: str,
+    _auth: dict = Depends(require_auth),
+) -> list[dict[str, Any]]:
     app_dir = GENERATED_APPS_DIR / slug
     if not app_dir.exists():
         raise HTTPException(status_code=404, detail="Workspace not found")
     
     result = []
-    for root_dir_name in sorted(CODE_ALLOWED_ROOTS):
+    allowed_roots = ["source", "docs"]
+    for root_dir_name in allowed_roots:
         target_path = app_dir / root_dir_name
         if not target_path.exists():
             continue
@@ -208,42 +273,43 @@ def get_job_code_tree(slug: str) -> list[dict[str, Any]]:
     return result
 
 
-def _resolve_allowed_code_file(app_dir: Path, requested_path: str) -> Path:
-    try:
-        base_dir = app_dir.resolve()
-        target_file = (app_dir / requested_path).resolve()
-        relative_path = target_file.relative_to(base_dir)
-    except Exception as exc:
-        raise HTTPException(status_code=400, detail="Invalid path") from exc
-
-    parts = relative_path.parts
-    if not parts or parts[0] not in CODE_ALLOWED_ROOTS:
-        raise HTTPException(status_code=403, detail="Access denied")
-    if any(part.startswith(".") for part in parts):
-        raise HTTPException(status_code=403, detail="Access denied")
-
-    # Deny sensitive file extensions and names
-    name_lower = target_file.name.lower()
-    if target_file.suffix.lower() in CODE_DENIED_EXTENSIONS:
-        raise HTTPException(status_code=403, detail="Access denied: sensitive file type")
-    if name_lower in CODE_DENIED_NAMES or any(name_lower.startswith(prefix) for prefix in ("env.", "secrets.", "credentials.")):
-        raise HTTPException(status_code=403, detail="Access denied: sensitive file")
-
-    return target_file
-
-
 @router.get("/{slug}/code/file")
-def get_job_code_file(slug: str, path: str, _auth: dict = Depends(require_auth)) -> dict[str, Any]:
+def get_job_code_file(
+    slug: str,
+    path: str,
+    _auth: dict = Depends(require_auth),
+) -> dict[str, Any]:
     app_dir = GENERATED_APPS_DIR / slug
     if not app_dir.exists():
         raise HTTPException(status_code=404, detail="Workspace not found")
     
-    target_file = _resolve_allowed_code_file(app_dir, path)
+    # Whitelist path check
+    parts = Path(path).parts
+    if not parts or parts[0] not in ["source", "docs"]:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied. Only source/ and docs/ files are permitted."
+        )
+    
+    # Safety check: prevent directory traversal
+    try:
+        target_file = (app_dir / path).resolve()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid path")
+        
+    if not str(target_file).startswith(str(app_dir.resolve())):
+        raise HTTPException(status_code=403, detail="Access denied")
+        
     if not target_file.exists() or not target_file.is_file():
         raise HTTPException(status_code=404, detail="File not found")
-    if target_file.stat().st_size > CODE_MAX_FILE_BYTES:
-        raise HTTPException(status_code=413, detail="File is too large to read")
-
+        
+    # Limit maximum file size (500KB)
+    if target_file.stat().st_size > 500 * 1024:
+        raise HTTPException(
+            status_code=400,
+            detail="File too large (exceeds 500KB limit)"
+        )
+        
     try:
         content = target_file.read_text(encoding="utf-8")
     except UnicodeDecodeError:

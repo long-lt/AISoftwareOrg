@@ -293,11 +293,12 @@ def test_api_providers_crud(tmp_path, monkeypatch=None):
                 "api_key_env": "LOCAL_TEST_API_KEY",
                 "default_model": "test-model",
             },
+            headers=h,
         )
         assert resp.status_code == 200, resp.text
         assert provider_file.exists()
 
-        resp = client.patch("/api/providers/local-test", json={"default_model": "test-model-v2"})
+        resp = client.patch("/api/providers/local-test", json={"default_model": "test-model-v2"}, headers=h)
         assert resp.status_code == 200, resp.text
         assert resp.json()["default_model"] == "test-model-v2"
 
@@ -305,7 +306,7 @@ def test_api_providers_crud(tmp_path, monkeypatch=None):
         assert resp.status_code == 200, resp.text
         assert 'LLM_PROVIDER="local-test"' in env_file.read_text()
 
-        resp = client.delete("/api/providers/local-test")
+        resp = client.delete("/api/providers/local-test", headers=h)
         assert resp.status_code == 200, resp.text
     finally:
         restore()
@@ -330,7 +331,7 @@ def test_delete_job(tmp_path):
         headers=h,
     )
     assert resp.status_code == 202
-    jobs = client.get("/api/jobs").json()
+    jobs = client.get("/api/jobs", headers=h).json()
     assert len(jobs) >= 1
     slug = jobs[0]["slug"]
 
@@ -342,7 +343,7 @@ def test_delete_job(tmp_path):
     assert body["purged"] is False
 
     # Verify job đã biến mất
-    assert client.get(f"/api/jobs/{slug}").status_code == 404
+    assert client.get(f"/api/jobs/{slug}", headers=h).status_code == 404
 
     # Xoá lại slug không tồn tại → 404
     assert client.delete(f"/api/jobs/{slug}", headers=h).status_code == 404
@@ -354,7 +355,7 @@ def test_delete_job(tmp_path):
         headers=h,
     )
     assert resp.status_code == 202
-    new_slug = client.get("/api/jobs").json()[0]["slug"]
+    new_slug = client.get("/api/jobs", headers=h).json()[0]["slug"]
     resp = client.delete(f"/api/jobs/{new_slug}?purge=true", headers=h)
     assert resp.status_code == 200
     body = resp.json()
@@ -383,7 +384,7 @@ def test_cancel_job(tmp_path):
         headers=h,
     )
     # Find our specific job
-    jobs = client.get("/api/jobs").json()
+    jobs = client.get("/api/jobs", headers=h).json()
     slug = next(j["slug"] for j in jobs if j["name"] == "CancelTestJob")
 
     # Cancel — queued → cancel_requested (or cancelled if already processed)
@@ -392,7 +393,7 @@ def test_cancel_job(tmp_path):
     assert resp.json()["status"] in ("cancel_requested", "cancelled")
 
     # Verify status trong DB
-    job = client.get(f"/api/jobs/{slug}").json()
+    job = client.get(f"/api/jobs/{slug}", headers=h).json()
     assert job["status"] in ("cancel_requested", "cancelled")
 
     # Cancel again → 409 (already cancelled/not in cancellable state)

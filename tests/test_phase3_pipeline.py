@@ -126,8 +126,14 @@ def test_job_logs_endpoint_filters_by_phase_and_level(
     write_job_log("api-logs", "07_static_qa", "error", "flutter analyze failed")
     write_job_log("api-logs", "08_refactor_repair", "info", "repair started")
 
+    import time
+    from dashboard.jwt_utils import encode_hs256
+    now = int(time.time())
+    token = encode_hs256({"team_id": "test", "role": "admin", "iat": now, "exp": now + 3600}, "phase3-secret")
+    headers = {"Authorization": f"Bearer {token}"}
+
     client = TestClient(create_app(secret_key="phase3-secret"))
-    response = client.get("/api/jobs/api-logs/logs?phase=07_static_qa&level=error")
+    response = client.get("/api/jobs/api-logs/logs?phase=07_static_qa&level=error", headers=headers)
 
     assert response.status_code == 200, response.text
     assert response.json() == [

@@ -72,9 +72,9 @@ class NoopExperienceExtractor:
 
 
 def _install_mocks() -> None:
-    import agents.dev_agent as dev_agent
-    import agents.qa_agent as qa_agent
-    import agents.reviewer_agent as reviewer_agent
+    import agents.software_org.dev_agent as dev_agent
+    import agents.software_org.qa_agent as qa_agent
+    import agents.software_org.reviewer_agent as reviewer_agent
     import core.graph.engine as engine
     import workflows.dev_pipeline as dev_pipeline
 

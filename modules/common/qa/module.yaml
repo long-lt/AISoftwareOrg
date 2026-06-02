@@ -1,0 +1,24 @@
+id: common.qa
+name: Static QA Module
+type: quality
+
+supported_project_types:
+  - mobile_app
+  - web_app
+  - backend_api
+  - fullstack_saas
+  - admin_dashboard
+  - cli_tool
+  - automation_worker
+  - ai_agent_system
+
+required_inputs:
+  - source/
+
+produced_outputs:
+  - docs/test_report.md
+  - docs/bug_list.md
+  - docs/qa_summary.json
+
+quality_commands: []
+dependencies: []

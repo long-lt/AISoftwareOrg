@@ -1,0 +1,30 @@
+id: frontend.react
+name: React Frontend Module
+type: frontend
+
+supported_project_types:
+  - web_app
+  - admin_dashboard
+  - fullstack_saas
+
+required_inputs:
+  - docs/product_spec.json
+  - docs/design.md
+  - docs/api_contract.md
+
+produced_outputs:
+  - source/frontend/package.json
+  - source/frontend/src/main.tsx
+  - source/frontend/src/App.tsx
+  - source/frontend/src/features/
+  - source/frontend/src/shared/
+
+quality_commands:
+  - npm install
+  - npm run lint
+  - npm run build
+  - npm test
+
+dependencies: []
+
+default_template: react_dashboard
