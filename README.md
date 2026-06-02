@@ -1,4 +1,5 @@
 # Unified AI Software Factory
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 **Unified AI Software Factory (`unified-ai-software-org`)** là một nền tảng nhà máy phần mềm tự động hóa toàn phần (Software Factory) thế hệ mới. Dự án được thiết lập bằng cách hợp nhất hai hệ thống AI Agent tiên tiến:
 1. **AISoftwareOrg**: Khung điều phối đa tác nhân (Multi-Agent System) mô phỏng một tổ chức phần mềm thực tế với các vị trí chuyên trách (PM, Dev, QA, Git, DevOps) hoạt động bất đồng bộ trên lõi điều phối `LangGraph`.
@@ -153,3 +154,7 @@ Hệ thống Backend cung cấp bộ REST APIs đầy đủ để tương tác:
 
 ## 📄 Bản quyền & Đóng góp
 Dự án được xây dựng và phát triển dưới dạng mã nguồn mở phục vụ cho các nghiên cứu về Hệ thống đa tác nhân (Multi-Agent Systems) tự trị biên dịch mã nguồn di động phức tạp.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
