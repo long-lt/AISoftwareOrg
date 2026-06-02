@@ -50,8 +50,11 @@ def create_app(
     agent_logger = logger or AgentLogger(echo=False)
     queue = approval_queue or ApprovalQueue()
     cp_store = checkpoint_store or CheckpointStore()
-    secret = secret_key or os.getenv("DASHBOARD_SECRET", "dev-secret-change-me")
     is_production = os.getenv("APP_ENV", "development").lower() == "production"
+    env_secret = os.getenv("DASHBOARD_SECRET")
+    secret = secret_key if secret_key is not None else (env_secret or "dev-secret-change-me")
+    if is_production and (not secret.strip() or secret == "dev-secret-change-me"):
+        raise RuntimeError("DASHBOARD_SECRET must be configured for production")
 
     app = FastAPI(title="Unified AI Software Factory Dashboard", version="1.0.0")
 

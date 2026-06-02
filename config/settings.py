@@ -47,11 +47,13 @@ class AppSettings(BaseSettings):
 
     # Pipeline defaults
     max_attempts: int = Field(default=3, alias="MAX_ATTEMPTS")
+    max_repair_attempts: int = Field(default=2, alias="MAX_REPAIR_ATTEMPTS")
     use_docker: bool = Field(default=False, alias="USE_DOCKER")
 
     # Dashboard
     dashboard_host: str = Field(default="0.0.0.0", alias="DASHBOARD_HOST")
     dashboard_port: int = Field(default=8000, alias="DASHBOARD_PORT")
+    admin_api_key: str = Field(default="", alias="ADMIN_API_KEY")
 
     # Redis connection url for queues and message bus
     redis_url: str = Field(default="redis://localhost:6379/0", alias="REDIS_URL")

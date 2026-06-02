@@ -6,21 +6,23 @@ Router for Flutter Generation Jobs, cancel/download actions and files browser.
 from __future__ import annotations
 
 import shutil
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from dashboard.database import (
     GENERATED_APPS_DIR,
+    delete_job_record,
     list_jobs,
     get_job,
+    list_job_logs,
     phase_status,
+    request_job_cancellation,
     _upsert_job,
     slugify,
-    _connect,
 )
 from dashboard.queue_manager import (
     _enqueue_thread,
@@ -29,6 +31,8 @@ from dashboard.queue_manager import (
 )
 
 router = APIRouter()
+CODE_ALLOWED_ROOTS = {"source", "docs", "backend"}
+CODE_MAX_FILE_BYTES = 512_000
 
 
 class GenerateRequest(BaseModel):
@@ -63,12 +67,8 @@ def get_job_phases(slug: str) -> dict[str, str]:
 
 @router.delete("/{slug}")
 def delete_single_job(slug: str, purge: bool = Query(False)) -> dict[str, Any]:
-    with _connect() as conn:
-        cur = conn.execute("DELETE FROM jobs WHERE slug = ?", (slug,))
-        if cur.rowcount == 0:
-            raise HTTPException(
-                status_code=404, detail=f"Job '{slug}' không tồn tại"
-            )
+    if not delete_job_record(slug):
+        raise HTTPException(status_code=404, detail=f"Job '{slug}' không tồn tại")
     purged_path = None
     if purge:
         app_dir = GENERATED_APPS_DIR / slug
@@ -80,26 +80,29 @@ def delete_single_job(slug: str, purge: bool = Query(False)) -> dict[str, Any]:
 
 @router.post("/{slug}/cancel")
 def cancel_single_job(slug: str) -> dict[str, Any]:
-    with _connect() as conn:
-        cur = conn.execute(
-            "UPDATE jobs SET status = 'cancelled', updated_at = ? "
-            "WHERE slug = ? AND status IN ('queued', 'running')",
-            (datetime.now(timezone.utc).isoformat(), slug),
+    if not request_job_cancellation(slug):
+        existing = get_job(slug)
+        if existing is None:
+            raise HTTPException(status_code=404, detail=f"Job '{slug}' không tồn tại")
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Job '{slug}' đang ở trạng thái '{existing['status']}' "
+                "— không thể huỷ (chỉ queued/running mới huỷ được)"
+            ),
         )
-        if cur.rowcount == 0:
-            existing = get_job(slug)
-            if existing is None:
-                raise HTTPException(
-                    status_code=404, detail=f"Job '{slug}' không tồn tại"
-                )
-            raise HTTPException(
-                status_code=409,
-                detail=(
-                    f"Job '{slug}' đang ở trạng thái '{existing['status']}' "
-                    "— không thể huỷ (chỉ queued/running mới huỷ được)"
-                ),
-            )
-    return {"slug": slug, "status": "cancelled"}
+    return {"slug": slug, "status": "cancel_requested", "cancel_requested": True}
+
+
+@router.get("/{slug}/logs")
+def get_job_logs(
+    slug: str,
+    phase: str | None = Query(default=None),
+    level: str | None = Query(default=None),
+) -> list[dict[str, Any]]:
+    if get_job(slug) is None:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return list_job_logs(slug, phase=phase, level=level)
 
 
 @router.post("", status_code=202)
@@ -173,8 +176,7 @@ def get_job_code_tree(slug: str) -> list[dict[str, Any]]:
         raise HTTPException(status_code=404, detail="Workspace not found")
     
     result = []
-    allowed_roots = ["source", "docs"]
-    for root_dir_name in allowed_roots:
+    for root_dir_name in sorted(CODE_ALLOWED_ROOTS):
         target_path = app_dir / root_dir_name
         if not target_path.exists():
             continue
@@ -196,24 +198,34 @@ def get_job_code_tree(slug: str) -> list[dict[str, Any]]:
     return result
 
 
+def _resolve_allowed_code_file(app_dir: Path, requested_path: str) -> Path:
+    try:
+        base_dir = app_dir.resolve()
+        target_file = (app_dir / requested_path).resolve()
+        relative_path = target_file.relative_to(base_dir)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="Invalid path") from exc
+
+    parts = relative_path.parts
+    if not parts or parts[0] not in CODE_ALLOWED_ROOTS:
+        raise HTTPException(status_code=403, detail="Access denied")
+    if any(part.startswith(".") for part in parts):
+        raise HTTPException(status_code=403, detail="Access denied")
+    return target_file
+
+
 @router.get("/{slug}/code/file")
 def get_job_code_file(slug: str, path: str) -> dict[str, Any]:
     app_dir = GENERATED_APPS_DIR / slug
     if not app_dir.exists():
         raise HTTPException(status_code=404, detail="Workspace not found")
     
-    # Safety check: prevent directory traversal
-    try:
-        target_file = (app_dir / path).resolve()
-    except Exception:
-        raise HTTPException(status_code=400, detail="Invalid path")
-        
-    if not str(target_file).startswith(str(app_dir.resolve())):
-        raise HTTPException(status_code=403, detail="Access denied")
-        
+    target_file = _resolve_allowed_code_file(app_dir, path)
     if not target_file.exists() or not target_file.is_file():
         raise HTTPException(status_code=404, detail="File not found")
-        
+    if target_file.stat().st_size > CODE_MAX_FILE_BYTES:
+        raise HTTPException(status_code=413, detail="File is too large to read")
+
     try:
         content = target_file.read_text(encoding="utf-8")
     except UnicodeDecodeError:

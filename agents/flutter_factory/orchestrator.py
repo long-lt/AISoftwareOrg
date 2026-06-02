@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import re
 import zipfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
+from config.settings import AppSettings
 from agents.flutter_factory.architect_agent import write_architect_documents
 from agents.flutter_factory.ba_agent import write_ba_documents
 from agents.flutter_factory.backend_agent import write_backend_source
@@ -17,12 +17,73 @@ from agents.flutter_factory.reviewer_agent import write_review_documents
 from agents.flutter_factory.runtime_agent import run_runtime_verification
 from agents.flutter_factory.security_agent import write_security_documents
 from agents.flutter_factory.uiux_agent import write_uiux_documents
+from dashboard.database import get_job, is_cancel_requested
+from dashboard.services.phase_service import (
+    cancel_phase,
+    fail_phase,
+    pass_phase,
+    start_phase,
+)
 
 
 @dataclass(frozen=True)
 class PipelineResult:
     written_paths: list[Path]
     export_path: Path | None = None
+
+
+class JobCancelledError(RuntimeError):
+    """Raised when a queued/running generation job has been cancelled."""
+
+
+def _job_slug(app_input: dict[str, Any]) -> str:
+    return str(app_input.get("slug") or "").strip()
+
+
+def _can_record_job(slug: str) -> bool:
+    return bool(slug and get_job(slug) is not None)
+
+
+def _check_cancellation(slug: str) -> None:
+    if slug and is_cancel_requested(slug):
+        raise JobCancelledError(f"Job '{slug}' was cancelled")
+
+
+def _relative_outputs(paths: list[Path], app_dir: Path) -> list[str]:
+    outputs: list[str] = []
+    for path in paths:
+        try:
+            outputs.append(str(path.relative_to(app_dir)))
+        except ValueError:
+            outputs.append(str(path))
+    return outputs
+
+
+def _run_recorded_phase(
+    app_input: dict[str, Any],
+    app_dir: Path,
+    phase: str,
+    operation: Callable[[], list[Path]],
+) -> list[Path]:
+    slug = _job_slug(app_input)
+    should_record = _can_record_job(slug)
+    _check_cancellation(slug)
+    if should_record:
+        start_phase(slug, phase)
+    try:
+        paths = operation()
+        _check_cancellation(slug)
+    except JobCancelledError as exc:
+        if should_record:
+            cancel_phase(slug, phase, str(exc))
+        raise
+    except Exception as exc:
+        if should_record:
+            fail_phase(slug, phase, str(exc))
+        raise
+    if should_record:
+        pass_phase(slug, phase, output_files=_relative_outputs(paths, app_dir))
+    return paths
 
 
 def _read_status(path: Path) -> str:
@@ -38,14 +99,7 @@ def _read_status(path: Path) -> str:
 
 
 def _configured_max_repair_attempts() -> int:
-    rules_path = Path(__file__).resolve().parents[1] / "config" / "rules.yaml"
-    if not rules_path.exists():
-        return 2
-    text = rules_path.read_text(encoding="utf-8")
-    match = re.search(r"max_repair_attempts:\s*(\d+)", text)
-    if not match:
-        return 2
-    return max(0, int(match.group(1)))
+    return max(0, AppSettings().max_repair_attempts)
 
 
 def _write_repair_history(
@@ -194,8 +248,21 @@ def _should_include_export_file(path: Path) -> bool:
         ".idea",
         ".vscode",
         ".git",
+        "node_modules",
+        "__pycache__",
     }
-    return not any(part in excluded_parts for part in path.parts)
+    excluded_names = {
+        ".env",
+        ".env.local",
+        ".env.production",
+        ".DS_Store",
+        "Thumbs.db",
+    }
+    if any(part in excluded_parts for part in path.parts):
+        return False
+    if any(part in excluded_names for part in path.parts):
+        return False
+    return path.suffix.lower() != ".log"
 
 
 def export_source_archive(app_input: dict[str, Any], app_dir: Path) -> list[Path]:
@@ -250,6 +317,11 @@ def export_source_archive(app_input: dict[str, Any], app_dir: Path) -> list[Path
             if doc_path.exists():
                 archive.write(doc_path, Path("docs") / filename)
 
+        for filename in ["README.md", ".env.example"]:
+            root_file = app_dir / filename
+            if root_file.exists() and _should_include_export_file(Path(filename)):
+                archive.write(root_file, filename)
+
     report_path = docs_dir / "export_report.md"
     report_path.write_text(
         f"""# Export Report: {app_input["name"]}
@@ -271,6 +343,8 @@ def export_source_archive(app_input: dict[str, Any], app_dir: Path) -> list[Path
 - `build/`
 - IDE metadata
 - Git metadata
+- `.env` secrets
+- `*.log`
 """,
         encoding="utf-8",
     )
@@ -284,26 +358,78 @@ def run_full_pipeline(app_input: dict[str, Any], app_dir: Path) -> PipelineResul
     backend_dir = app_dir / "backend"
     written_paths: list[Path] = []
 
-    written_paths.extend(write_ba_documents(app_input, docs_dir))
-    written_paths.extend(write_backend_source(app_input, docs_dir, backend_dir))
-    written_paths.extend(write_architect_documents(app_input, docs_dir))
-    written_paths.extend(write_uiux_documents(app_input, docs_dir))
-    written_paths.extend(write_flutter_source(app_input, docs_dir, source_dir))
     written_paths.extend(
-        _run_repair_loop(
+        _run_recorded_phase(
             app_input,
-            docs_dir,
-            source_dir,
-            max_attempts=_configured_max_repair_attempts(),
+            app_dir,
+            "02_business_analysis",
+            lambda: write_ba_documents(app_input, docs_dir),
         )
     )
-    written_paths.extend(write_review_documents(app_input, docs_dir, source_dir))
+    written_paths.extend(
+        _run_recorded_phase(
+            app_input,
+            app_dir,
+            "03_backend_design",
+            lambda: write_backend_source(app_input, docs_dir, backend_dir),
+        )
+    )
+    written_paths.extend(
+        _run_recorded_phase(
+            app_input,
+            app_dir,
+            "04_architecture_design",
+            lambda: write_architect_documents(app_input, docs_dir),
+        )
+    )
+    written_paths.extend(
+        _run_recorded_phase(
+            app_input,
+            app_dir,
+            "05_uiux_design",
+            lambda: write_uiux_documents(app_input, docs_dir),
+        )
+    )
+    written_paths.extend(
+        _run_recorded_phase(
+            app_input,
+            app_dir,
+            "06_flutter_dev",
+            lambda: write_flutter_source(app_input, docs_dir, source_dir),
+        )
+    )
+    written_paths.extend(
+        _run_recorded_phase(
+            app_input,
+            app_dir,
+            "08_refactor_repair",
+            lambda: _run_repair_loop(
+                app_input,
+                docs_dir,
+                source_dir,
+                max_attempts=_configured_max_repair_attempts(),
+            ),
+        )
+    )
+    written_paths.extend(
+        _run_recorded_phase(
+            app_input,
+            app_dir,
+            "11_release_review",
+            lambda: write_review_documents(app_input, docs_dir, source_dir),
+        )
+    )
 
     gate_error = _pipeline_gate_error(docs_dir)
     if gate_error:
         raise RuntimeError(gate_error)
 
-    export_paths = export_source_archive(app_input, app_dir)
+    export_paths = _run_recorded_phase(
+        app_input,
+        app_dir,
+        "12_export_package",
+        lambda: export_source_archive(app_input, app_dir),
+    )
     written_paths.extend(export_paths)
 
     return PipelineResult(written_paths=written_paths, export_path=export_paths[0])

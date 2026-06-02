@@ -1,0 +1,3 @@
+# Configuration rules for the AI Software Factory
+max_repair_attempts: 3
+daily_cost_limit: 5.00
