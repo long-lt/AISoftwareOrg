@@ -84,6 +84,20 @@ Token payload chứa `team_id`, `role`, `iat`, `exp`.
 - `401` — Admin key thiếu hoặc không đúng
 - `503` — `ADMIN_API_KEY` chưa được cấu hình
 
+### `GET /api/auth/me`
+
+Lấy thông tin user hiện tại từ JWT token.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{ "team_id": "default" }
+```
+
+**Errors:**
+- `401` — Token không hợp lệ hoặc thiếu
+
 ---
 
 ## Jobs
@@ -282,6 +296,50 @@ Cập nhật model và system prompt của agent.
 }
 ```
 
+### `GET /api/agents/{agent_id}`
+
+Lấy thông tin chi tiết một agent.
+
+**Response:**
+```json
+{
+  "agent_id": "dev_agent",
+  "name": "Dev Agent",
+  "type": "flutter_factory",
+  "status": "active",
+  "model": "gpt-4o",
+  "system_prompt": "...",
+  "description": "...",
+  "updated_at": "2025-01-15T10:30:00"
+}
+```
+
+### `PATCH /api/agents/{agent_id}`
+
+Cập nhật agent (partial update).
+
+**Body:**
+```json
+{
+  "model": "gpt-4o-mini",
+  "system_prompt": "Updated prompt..."
+}
+```
+
+### `POST /api/agents/{agent_id}/test`
+
+Test agent bằng cách gửi prompt thử nghiệm.
+
+**Response:**
+```json
+{
+  "agent_id": "dev_agent",
+  "model": "gpt-4o",
+  "status": "ok",
+  "response": "OK"
+}
+```
+
 ---
 
 ## Settings
@@ -334,9 +392,24 @@ Lấy danh sách models từ LLM provider.
 
 Liệt kê tất cả registered LLM providers.
 
+### `POST /api/providers`
+
+Thêm provider mới (name trong body).
+
+**Body:**
+```json
+{
+  "name": "my-provider",
+  "base_url": "https://api.example.com/v1",
+  "api_key_env": "EXAMPLE_API_KEY",
+  "default_model": "example-model-v1",
+  "enabled": true
+}
+```
+
 ### `POST /api/providers/{name}`
 
-Thêm hoặc upsert custom provider.
+Thêm hoặc upsert custom provider (name trong URL).
 
 **Body:**
 ```json
@@ -359,6 +432,15 @@ Xóa custom provider.
 ### `POST /api/providers/{name}/use`
 
 Kích hoạt provider làm LLM chính (ghi `LLM_PROVIDER` vào `.env`).
+
+### `POST /api/providers/{name}/test`
+
+Test kết nối đến provider.
+
+**Response:**
+```json
+{ "provider": "openrouter", "status": "ok", "models_count": 42 }
+```
 
 ---
 
@@ -397,6 +479,38 @@ Từ chối checkpoint.
 
 ---
 
+## HITL (Unified Queue)
+
+### `GET /api/hitl/queue`
+
+Unified queue: gộp experiences + checkpoints pending.
+
+**Response:**
+```json
+{
+  "pending": [
+    { "type": "experience", "id": "exp-1", "content": "..." },
+    { "type": "checkpoint", "id": "cp-1", "action": "..." }
+  ],
+  "counts": { "experiences": 3, "checkpoints": 1 }
+}
+```
+
+### `POST /api/hitl/{item_id}/approve`
+
+Phê duyệt item (tự động tìm trong experiences hoặc checkpoints).
+
+### `POST /api/hitl/{item_id}/reject`
+
+Từ chối item.
+
+**Parameters:**
+| In | Name | Type | Description |
+|---|---|---|---|
+| Query | `reason` | string | Lý do từ chối (optional) |
+
+---
+
 ## Observability
 
 ### `GET /api/tasks`
@@ -420,6 +534,44 @@ Agent activity logs.
 
 Aggregated cost breakdown: total cost, total tokens, by task, by agent.
 
+### `GET /api/costs/summary`
+
+Cost summary overview.
+
+**Response:**
+```json
+{
+  "total_cost_usd": 12.50,
+  "total_calls": 42,
+  "avg_cost_per_call": 0.2976,
+  "top_agent": "dev_agent"
+}
+```
+
+### `GET /api/costs/by-agent`
+
+Cost breakdown theo agent.
+
+**Response:**
+```json
+[
+  { "agent": "dev_agent", "cost_usd": 5.20, "calls": 15, "tokens_in": 50000, "tokens_out": 20000 },
+  { "agent": "qa_agent", "cost_usd": 3.10, "calls": 10, "tokens_in": 30000, "tokens_out": 10000 }
+]
+```
+
+### `GET /api/costs/by-job`
+
+Cost breakdown theo job.
+
+**Response:**
+```json
+[
+  { "job_slug": "my-app", "cost_usd": 8.50, "calls": 25 },
+  { "job_slug": "another-app", "cost_usd": 4.00, "calls": 17 }
+]
+```
+
 ### `GET /api/costs/daily`
 
 Daily cost aggregation.
@@ -439,6 +591,42 @@ Daily cost aggregation.
 ### `GET /api/kpis`
 
 Dashboard KPI summary.
+
+---
+
+## System Settings
+
+### `GET /api/settings`
+
+Lấy tất cả system settings.
+
+### `GET /api/system/settings`
+
+Alias cho `GET /api/settings`.
+
+### `POST /api/settings`
+
+Cập nhật system settings.
+
+### `PATCH /api/system/settings`
+
+Alias cho `POST /api/settings` (partial update semantics).
+
+### `GET /api/system/status`
+
+System status info.
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "version": "1.0.0",
+  "queue_backend": "thread",
+  "db_path": "/path/to/dashboard/data/app.db",
+  "db_exists": true,
+  "generated_apps_dir": "/path/to/generated_apps"
+}
+```
 
 **Response:**
 ```json

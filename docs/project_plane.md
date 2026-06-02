@@ -344,7 +344,7 @@ rq worker flutter_ai_factory
 # PHASE 3 — Nâng cấp Agent Pipeline
 
 ```
-phase3_agent_pipeline.md
+docs/phase3_agent_pipeline.md
 ```
 
 ---

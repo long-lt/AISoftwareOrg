@@ -79,6 +79,81 @@ async def get_costs(request: Request) -> dict[str, Any]:
     }
 
 
+@router.get("/costs/summary")
+async def get_costs_summary(request: Request) -> dict[str, Any]:
+    agent_logger = request.app.state.agent_logger
+    all_logs = await agent_logger.tail(n=1000)
+    cost_logs = [l for l in all_logs if l.get("action") == "llm_cost"]
+
+    total_cost = 0.0
+    total_calls = len(cost_logs)
+    agent_costs: dict[str, float] = {}
+
+    for entry in cost_logs:
+        details = entry.get("details") or {}
+        cost = float(details.get("cost_usd") or 0.0)
+        total_cost += cost
+        agent = entry.get("agent", "unknown")
+        agent_costs[agent] = agent_costs.get(agent, 0.0) + cost
+
+    top_agent = max(agent_costs, key=agent_costs.get) if agent_costs else None
+
+    return {
+        "total_cost_usd": round(total_cost, 4),
+        "total_calls": total_calls,
+        "avg_cost_per_call": round(total_cost / total_calls, 6) if total_calls else 0.0,
+        "top_agent": top_agent,
+    }
+
+
+@router.get("/costs/by-agent")
+async def get_costs_by_agent(request: Request) -> list[dict[str, Any]]:
+    agent_logger = request.app.state.agent_logger
+    all_logs = await agent_logger.tail(n=1000)
+    cost_logs = [l for l in all_logs if l.get("action") == "llm_cost"]
+
+    by_agent: dict[str, dict[str, Any]] = {}
+    for entry in cost_logs:
+        details = entry.get("details") or {}
+        agent = entry.get("agent", "unknown")
+        cost = float(details.get("cost_usd") or 0.0)
+        tokens_in = int(details.get("prompt_tokens") or 0)
+        tokens_out = int(details.get("completion_tokens") or 0)
+
+        bucket = by_agent.setdefault(agent, {"cost_usd": 0.0, "calls": 0, "tokens_in": 0, "tokens_out": 0})
+        bucket["cost_usd"] += cost
+        bucket["calls"] += 1
+        bucket["tokens_in"] += tokens_in
+        bucket["tokens_out"] += tokens_out
+
+    return [
+        {"agent": agent, "cost_usd": round(d["cost_usd"], 4), "calls": d["calls"], "tokens_in": d["tokens_in"], "tokens_out": d["tokens_out"]}
+        for agent, d in sorted(by_agent.items(), key=lambda x: x[1]["cost_usd"], reverse=True)
+    ]
+
+
+@router.get("/costs/by-job")
+async def get_costs_by_job(request: Request) -> list[dict[str, Any]]:
+    agent_logger = request.app.state.agent_logger
+    all_logs = await agent_logger.tail(n=1000)
+    cost_logs = [l for l in all_logs if l.get("action") == "llm_cost"]
+
+    by_job: dict[str, dict[str, Any]] = {}
+    for entry in cost_logs:
+        details = entry.get("details") or {}
+        job_slug = entry.get("task_id", "unknown")
+        cost = float(details.get("cost_usd") or 0.0)
+
+        bucket = by_job.setdefault(job_slug, {"cost_usd": 0.0, "calls": 0})
+        bucket["cost_usd"] += cost
+        bucket["calls"] += 1
+
+    return [
+        {"job_slug": slug, "cost_usd": round(d["cost_usd"], 4), "calls": d["calls"]}
+        for slug, d in sorted(by_job.items(), key=lambda x: x[1]["cost_usd"], reverse=True)
+    ]
+
+
 @router.get("/costs/daily")
 async def get_costs_daily(request: Request, days: int = Query(7, ge=1, le=30)) -> list[dict[str, Any]]:
     agent_logger = request.app.state.agent_logger

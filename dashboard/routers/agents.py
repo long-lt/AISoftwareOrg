@@ -51,11 +51,94 @@ def update_single_agent_config(agent_id: str, payload: AgentConfigRequest) -> di
     return {"agent_id": agent_id, "status": "updated"}
 
 
+@router.get("/agents/{agent_id}")
+def get_single_agent(agent_id: str) -> dict[str, Any]:
+    with _connect() as connection:
+        row = connection.execute(
+            "SELECT agent_id, name, type, status, model, system_prompt, description, updated_at FROM agents_config WHERE agent_id = ?",
+            (agent_id,),
+        ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
+    return dict(row)
+
+
+@router.patch("/agents/{agent_id}")
+def patch_agent(agent_id: str, payload: AgentConfigRequest) -> dict[str, Any]:
+    now = datetime.now().isoformat()
+    with _connect() as connection:
+        existing = connection.execute("SELECT agent_id FROM agents_config WHERE agent_id = ?", (agent_id,)).fetchone()
+        if not existing:
+            raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
+        connection.execute(
+            "UPDATE agents_config SET model = ?, system_prompt = ?, updated_at = ? WHERE agent_id = ?",
+            (payload.model, payload.system_prompt, now, agent_id),
+        )
+        connection.commit()
+    return {"agent_id": agent_id, "status": "updated"}
+
+
+@router.post("/agents/{agent_id}/test")
+async def test_agent(agent_id: str, request: Request) -> dict[str, Any]:
+    with _connect() as connection:
+        row = connection.execute(
+            "SELECT agent_id, name, model, system_prompt FROM agents_config WHERE agent_id = ?",
+            (agent_id,),
+        ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail=f"Agent {agent_id} not found")
+
+    from dashboard.app import settings
+    import openai
+
+    client = openai.OpenAI(
+        base_url=settings.llm_base_url,
+        api_key=settings.llm_api_key or "sk-test",
+    )
+    try:
+        response = client.chat.completions.create(
+            model=row["model"] or settings.llm_model,
+            messages=[
+                {"role": "system", "content": row["system_prompt"] or "You are a helpful assistant."},
+                {"role": "user", "content": "Reply with exactly: OK"},
+            ],
+            max_tokens=10,
+        )
+        reply = response.choices[0].message.content or ""
+        return {"agent_id": agent_id, "model": row["model"], "status": "ok", "response": reply.strip()}
+    except Exception as exc:
+        return {"agent_id": agent_id, "model": row["model"], "status": "error", "error": str(exc)}
+
+
 @router.get("/settings")
 def get_system_settings_dict() -> dict[str, str]:
     with _connect() as connection:
         rows = connection.execute("SELECT key, value FROM system_settings").fetchall()
     return {row["key"]: row["value"] for row in rows}
+
+
+@router.get("/system/settings")
+def get_system_settings_alias() -> dict[str, str]:
+    return get_system_settings_dict()
+
+
+@router.patch("/system/settings")
+def patch_system_settings(payload: SettingsRequest) -> dict[str, str]:
+    return update_system_settings_dict(payload)
+
+
+@router.get("/system/status")
+def get_system_status() -> dict[str, Any]:
+    from dashboard.database import DB_PATH, GENERATED_APPS_DIR
+    from dashboard.queue_manager import QUEUE_BACKEND
+    return {
+        "status": "ok",
+        "version": "1.0.0",
+        "queue_backend": QUEUE_BACKEND,
+        "db_path": str(DB_PATH),
+        "db_exists": DB_PATH.exists(),
+        "generated_apps_dir": str(GENERATED_APPS_DIR),
+    }
 
 
 @router.post("/settings")

@@ -35,6 +35,67 @@ def _team_cp_store(team_id: str, cp_store: CheckpointStore) -> CheckpointStore:
     return CheckpointStore(storage=TenantAwareStorage(team_id, base_storage))
 
 
+@router.get("/hitl/queue")
+async def get_hitl_queue(request: Request) -> dict[str, Any]:
+    queue = request.app.state.approval_queue
+    cp_store = request.app.state.checkpoint_store
+    secret = request.app.state.secret
+    team_id = get_team_id_from_token(request, secret)
+    q = _team_queue(team_id, queue) if team_id else queue
+    cs = _team_cp_store(team_id, cp_store) if team_id else cp_store
+
+    exp_pending = [{"type": "experience", **item} for item in q.list_pending()]
+    cp_pending = [{"type": "checkpoint", **item} for item in cs.list_pending()]
+
+    return {
+        "pending": exp_pending + cp_pending,
+        "counts": {
+            "experiences": q.count(),
+            "checkpoints": cs.count(),
+        },
+    }
+
+
+@router.post("/hitl/{item_id}/approve")
+async def hitl_approve(item_id: str, request: Request) -> dict[str, Any]:
+    queue = request.app.state.approval_queue
+    cp_store = request.app.state.checkpoint_store
+    secret = request.app.state.secret
+    team_id = get_team_id_from_token(request, secret)
+    q = _team_queue(team_id, queue) if team_id else queue
+    cs = _team_cp_store(team_id, cp_store) if team_id else cp_store
+
+    result = q.approve(item_id)
+    if result is not None:
+        return result
+    result = cs.approve(item_id)
+    if result is not None:
+        return result
+    raise HTTPException(status_code=404, detail=f"Item {item_id} not found")
+
+
+@router.post("/hitl/{item_id}/reject")
+async def hitl_reject(
+    item_id: str,
+    request: Request,
+    reason: str = Query("", description="Lý do từ chối"),
+) -> dict[str, Any]:
+    queue = request.app.state.approval_queue
+    cp_store = request.app.state.checkpoint_store
+    secret = request.app.state.secret
+    team_id = get_team_id_from_token(request, secret)
+    q = _team_queue(team_id, queue) if team_id else queue
+    cs = _team_cp_store(team_id, cp_store) if team_id else cp_store
+
+    result = q.reject(item_id, reason=reason)
+    if result is not None:
+        return result
+    result = cs.reject(item_id, reason=reason)
+    if result is not None:
+        return result
+    raise HTTPException(status_code=404, detail=f"Item {item_id} not found")
+
+
 @router.get("/experiences")
 async def get_experiences(request: Request) -> dict[str, Any]:
     queue = request.app.state.approval_queue

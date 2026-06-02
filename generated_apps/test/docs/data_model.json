@@ -1,0 +1,126 @@
+{
+  "schema_version": "1.0",
+  "storage": {
+    "primary": "backend_database",
+    "local_cache": "optional",
+    "recommended_database": "postgresql_for_production_sqlite_for_local"
+  },
+  "entities": [
+    {
+      "name": "Todo",
+      "feature": "todo",
+      "table_name": "todo_items",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "completed",
+          "type": "boolean",
+          "required": true
+        },
+        {
+          "name": "due_date",
+          "type": "datetime",
+          "required": false
+        }
+      ],
+      "indexes": [
+        "id"
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "feature": "dashboard",
+      "table_name": "dashboard_items",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "required": false
+        }
+      ],
+      "indexes": [
+        "id"
+      ]
+    },
+    {
+      "name": "Settings",
+      "feature": "settings",
+      "table_name": "settings_items",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "created_at",
+          "type": "datetime",
+          "required": false
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime",
+          "required": false
+        }
+      ],
+      "indexes": [
+        "id"
+      ]
+    }
+  ],
+  "relationships": []
+}

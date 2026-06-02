@@ -34,6 +34,14 @@ class ProviderPayload(BaseModel):
     enabled: bool | None = None
 
 
+class ProviderCreatePayload(BaseModel):
+    name: str
+    base_url: str
+    api_key_env: str = "LLM_API_KEY"
+    default_model: str
+    enabled: bool = True
+
+
 @router.get("/models")
 async def list_active_provider_models(
     provider: Optional[str] = Query(None),
@@ -133,6 +141,20 @@ async def list_active_provider_models(
         }
 
 
+@router.post("/providers")
+async def add_provider_body(payload: ProviderCreatePayload) -> dict[str, Any]:
+    from dashboard.app import settings
+    provider = upsert_provider(
+        payload.name,
+        base_url=payload.base_url,
+        api_key_env=payload.api_key_env,
+        default_model=payload.default_model,
+        enabled=payload.enabled,
+        path=settings.llm_providers_file,
+    )
+    return provider_to_dict(provider)
+
+
 @router.get("/providers")
 async def get_providers() -> dict[str, Any]:
     from dashboard.app import settings
@@ -156,6 +178,35 @@ async def add_provider(name: str, payload: ProviderPayload) -> dict[str, Any]:
         path=settings.llm_providers_file,
     )
     return provider_to_dict(provider)
+
+
+@router.post("/providers/{name}/test")
+async def test_provider(name: str) -> dict[str, Any]:
+    from dashboard.app import settings
+    try:
+        provider = get_enabled_provider(name, settings.llm_providers_file)
+    except KeyError:
+        raise HTTPException(status_code=404, detail=f"Unknown provider: {name}")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    import urllib.request
+    import urllib.error
+    import os
+
+    base_url = provider.base_url.rstrip("/")
+    api_key = os.getenv(provider.api_key_env, "")
+    headers = {"User-Agent": "Unified-AI-Software-Dashboard/1.0", "Accept": "application/json"}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+
+    req = urllib.request.Request(f"{base_url}/models", headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=8) as response:
+            data = json.loads(response.read().decode("utf-8"))
+            return {"provider": name, "status": "ok", "models_count": len(data.get("data", []))}
+    except Exception as exc:
+        return {"provider": name, "status": "error", "error": str(exc)}
 
 
 @router.patch("/providers/{name}")

@@ -56,6 +56,15 @@ async def create_auth_token(
     }
 
 
+@router.get("/me")
+async def get_current_user(request: Request) -> dict[str, Any]:
+    secret = request.app.state.secret
+    team_id = get_team_id_from_token(request, secret)
+    if not team_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return {"team_id": team_id}
+
+
 def get_team_id_from_token(request: Request, secret: str) -> str | None:
     auth = request.headers.get("Authorization", "")
     if not auth.startswith("Bearer "):

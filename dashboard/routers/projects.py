@@ -59,6 +59,13 @@ def update_project(slug: str, payload: ProjectRequest) -> dict[str, Any]:
     return create_initiative(data)
 
 
+@router.patch("/{slug}")
+def patch_project(slug: str, payload: ProjectRequest) -> dict[str, Any]:
+    data = payload.dict()
+    data["slug"] = slug
+    return create_initiative(data)
+
+
 @router.delete("/{slug}")
 def delete_single_project(slug: str) -> dict[str, Any]:
     if not delete_initiative(slug):

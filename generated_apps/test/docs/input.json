@@ -1,0 +1,13 @@
+{
+  "name": "Test",
+  "description": "x",
+  "platform": "android,ios",
+  "style": "modern",
+  "backend": "none",
+  "features": [
+    "todo",
+    "dashboard",
+    "settings"
+  ],
+  "slug": "test"
+}
